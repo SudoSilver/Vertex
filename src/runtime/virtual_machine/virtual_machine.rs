@@ -100,7 +100,7 @@ impl VM {
                     let left = self.pop()?;
                     match (left, right) {
                         (Number(a), Number(b)) => {
-                            self.stack.push(Number(b % a));
+                            self.stack.push(Number(a % b));
                         }
                         _ => return Err("Type error: '%' expects numbers".into()),
                     }
