@@ -1,0 +1,35 @@
+const size:numb = 10;
+var it:numb = 0;
+while (it < size + 2)
+{
+	it = it + 1;
+	write!("_")
+}
+it = 0;
+writeLn!("")
+while (it < size)
+{
+	write!("|")
+	it = it + 1;
+	var it2:numb = 0;
+	while (it2 < size)
+	{
+		var rem:numb = 0;
+		var rem2:numb = 0;
+		var tile:string = "X";
+		it2 = it2 + 1;		
+		rem = it % 2;
+		rem2 = (it2 + rem) % 2;
+		if (rem2 > 0) {
+			tile = " ";
+		}
+		write!(tile)
+	}
+	writeLn!("|")
+}
+it = 0;
+while (it < size + 2)
+{
+	it = it + 1;
+	write!("_")
+}

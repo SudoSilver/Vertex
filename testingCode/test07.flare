@@ -1,3 +1,10 @@
-const x:flt = 50.3;
-const i:numb = 5;
-writeLn!(x+i)
+const size:numb = 10;
+var it:numb = 0;
+while (it < size)
+{
+	it = it + 1;
+    var rem:numb = 0;
+    rem = it % 2;
+    write!(rem)	
+}
+writeLn!("")
