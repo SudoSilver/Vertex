@@ -1,5 +1,5 @@
-fnc hi_mom(name:string,idk:flt):void{
+fnc hi_mom(name:string):void{
   writeLn!(name)
 }
 hi_mom("Hello")
-name
+

@@ -145,3 +145,34 @@ if(something){
 }
 x + 5 // wont work
 ```
+
+
+# Functions
+## Decleratin
+```flare
+fnc name(arg1:type,arg2:type):returnType //return type must be declared
+{
+  //do some stuff with args etc.
+
+}
+```
+## Calling function
+```flare
+var foo = name_of_the_function(arguments);
+
+//or
+name_of_the_function(arguments)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
