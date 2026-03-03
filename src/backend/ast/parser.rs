@@ -162,7 +162,11 @@ impl Parser {
 
 
             }
-            _ => self.parse_expr(),
+            _ =>{
+                let expr = self.parse_expr();
+                self.expect(SEMICOLON)?;
+                expr
+            },
         }
     }
 
