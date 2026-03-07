@@ -25,7 +25,8 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
         println!("{:?}", instruction);
     }
 }
-
+//NOTE:This uses relative path from the compiler
+// so you need to cd in first and than it run program main at the flauncher
 pub fn compile_file_to_bytecode(dir: String) -> Vec<Instructions> {
     /*
      * Lexer

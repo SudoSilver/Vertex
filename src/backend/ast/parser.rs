@@ -1,14 +1,33 @@
 use crate::backend::{
-    ast::{nodes::{BinaryOpNode, BoolNode, CallType::{Fn, Macro}, FloatNode, FunctionCallNode, NumberNode, ProgramNode, StringNode, VariableAccessNode, VariableAssignNode, VariableDefineNode}, statements::{functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode}, if_statement::IfStatement, while_statement::WhileStatement}},
+    ast::{
+        nodes::{
+            BinaryOpNode, BoolNode,
+            CallType::{Fn, Macro},
+            FloatNode, FunctionCallNode, NumberNode, ProgramNode, StringNode, VariableAccessNode,
+            VariableAssignNode, VariableDefineNode,
+        },
+        statements::{
+            functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode},
+            if_statement::IfStatement,
+            while_statement::WhileStatement,
+        },
+    },
     compiler::byte_code::Compilable,
     errors::parser_errors::ParserError::{self, UnexpectedToken},
-    lexer::tokens::{Token, TokenKind::{self, CLOSINGBRACE, COLON, COMMA, CONST, DIVIDE, ELSE, EOF, EQUAL, FALSE, FLOAT, FNC, GREATER, IDENTIFIER, IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS, RIGHTPAREN, SEMICOLON, STRING, TIMES, TRUE, VALUE, VAR, WHILE}},
+    lexer::tokens::{
+        Token,
+        TokenKind::{
+            self, CLOSINGBRACE, COLON, COMMA, CONST, DIVIDE, ELSE, EOF, EQUAL, FALSE, FLOAT, FNC,
+            GREATER, IDENTIFIER, IF, LEFTPAREN, LESS, MINUS, MODULO, NUMB, OPENINGBRACE, PLUS,
+            RIGHTPAREN, SEMICOLON, STRING, TIMES, TRUE, VALUE, VAR, WHILE,
+        },
+    },
 };
 
 pub struct Parser {
     tokens: Vec<Token>,
     token_idx: usize,
-} 
+}
 impl Parser {
     pub fn new(token_list: Vec<Token>) -> Self {
         Self {
@@ -33,6 +52,8 @@ impl Parser {
         Ok(Box::new(program))
     }
 
+    //WARN:Do not use import in other statements
+    // just on top of the program for now
     fn parse_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         match &self.current_token().token_kind {
             VAR | CONST => {
@@ -110,13 +131,12 @@ impl Parser {
                 self.expect(CLOSINGBRACE)?;
                 return Ok(Box::new(WhileStatement { condition, body }));
             }
-            FNC=>{
+            FNC => {
                 let mut args = Vec::new();
-                self.advance();//FN
+                self.advance(); //FN
                 let id = self.expect(IDENTIFIER)?;
                 self.expect(LEFTPAREN)?;
-                if self.current_token().token_kind!=RIGHTPAREN {
-
+                if self.current_token().token_kind != RIGHTPAREN {
                     loop {
                         let arg_name = self.expect(IDENTIFIER)?;
                         self.expect(COLON)?;
@@ -134,39 +154,35 @@ impl Parser {
 
                         break;
                     }
-                    
                 }
                 self.expect(RIGHTPAREN)?;
                 let reurn_type = if self.current_token().token_kind == COLON {
                     self.advance();
                     Some(self.expect(IDENTIFIER)?.token_value)
-                }else {
+                } else {
                     None
                 };
                 self.expect(OPENINGBRACE)?;
 
-                let mut body:Vec<Box<dyn Compilable>> = Vec::new();
-                while self.current_token().token_kind!=CLOSINGBRACE {
-                    body.push(self.parse_stmt()?); 
+                let mut body: Vec<Box<dyn Compilable>> = Vec::new();
+                while self.current_token().token_kind != CLOSINGBRACE {
+                    body.push(self.parse_stmt()?);
                 }
                 self.expect(CLOSINGBRACE)?;
-                println!("{:?}",&reurn_type);
+                println!("{:?}", &reurn_type);
 
-                Ok(Box::new(FunctionDefineNode{
-                    id:id.token_value,
-                    return_type:reurn_type,
+                Ok(Box::new(FunctionDefineNode {
+                    id: id.token_value,
+                    return_type: reurn_type,
                     body,
-                    args
-
+                    args,
                 }))
-
-
             }
-            _ =>{
+            _ => {
                 let expr = self.parse_expr();
                 self.expect(SEMICOLON)?;
                 expr
-            },
+            }
         }
     }
 
@@ -205,7 +221,7 @@ impl Parser {
     fn parse_expr(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         //let mut comp:Box<dyn Compilable>;
         //if self.current_token()==MINUS {
-          //  comp
+        //  comp
         //}
 
         let comp = self.parse_comparison();

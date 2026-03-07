@@ -163,16 +163,3 @@ var foo = name_of_the_function(arguments);
 //or
 name_of_the_function(arguments);
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,12 +1,7 @@
-# editor
+## editor
 /.idea
-# language
+## language
 /.cargo
-#testing
-testing/macroTest/__pycache__
-testing/.venv
-testing/__pycache__
-/.pytest_cache
 # build
 /target
 /target/.rustc_info.json

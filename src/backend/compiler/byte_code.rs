@@ -17,11 +17,10 @@ use crate::backend::{
             self, Add, Div, Halt, LoadVar, Mul, PushBool, PushNumber, PushString, Sub,
         },
         optimization::optimze::optimize,
-        saving_bytes::{self, save},
+        saving_bytes::save,
     },
     errors::compiler::compiler_errors::CompileError::{self, CannotInferType, TypeMismatch},
     lexer::tokens::TokenKind::{self, TRUE},
-    linker,
 };
 use CompileError::ConstantWithoutValue;
 use std::fmt::{self, Debug, Formatter};

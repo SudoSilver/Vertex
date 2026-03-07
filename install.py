@@ -15,7 +15,7 @@ def run(cmd):
 if not os.path.exists(DIR):
     run(["git", "clone", REPO])
 else:
-    print("Repo already exists")
+    print("Repo is alredy cloned")
 
 # build binaries
 os.chdir(DIR)
