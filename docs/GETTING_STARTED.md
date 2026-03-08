@@ -114,8 +114,6 @@ else{
 
 ---
 
-Few rules for **if**
-
 - condition must be of type **bool**
 - than branch evaluates if condition is true
 - else branch evaluates when condition is false
@@ -130,7 +128,6 @@ while(condition){
 
 ---
 
-Few rules for **while**:
 - condition must be of type **bool**
 - body of the **while** evaluates while the condition is true
 - when the condition is false it continues the program
@@ -149,6 +146,7 @@ x + 5 // wont work
 
 # Functions
 ## Decleratin
+Function is encapsulated peace of code that can be called multiple times
 ```flare
 fnc name(arg1:type,arg2:type):returnType //return type must be declared
 {
@@ -162,4 +160,12 @@ var foo = name_of_the_function(arguments);
 
 //or
 name_of_the_function(arguments);
+```
+# Imports
+
+Imports can be used to acess variabels a functions from other files for better code structure. For this we use keyword ```use```
+
+```flare
+use "foo/bar.flare" //<-x defined in bar.flare
+writeLn!(x);
 ```

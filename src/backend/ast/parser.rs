@@ -27,12 +27,14 @@ use crate::backend::{
 pub struct Parser {
     tokens: Vec<Token>,
     token_idx: usize,
+    on_top_statement: bool,
 }
 impl Parser {
     pub fn new(token_list: Vec<Token>) -> Self {
         Self {
             tokens: token_list,
             token_idx: 0,
+            on_top_statement: true,
         }
     }
 
@@ -46,16 +48,18 @@ impl Parser {
 
     pub fn parse(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut program: ProgramNode = ProgramNode::new();
+
+        while self.on_top_statement && self.current_token().token_kind != EOF {
+            program.program_nodes.push(self.parse_top_statement()?);
+        }
+
         while self.current_token().token_kind != EOF {
             program.program_nodes.push(self.parse_stmt()?)
         }
         Ok(Box::new(program))
     }
-
-    //WARN:Do not use import in other statements
-    // just on top of the program for now
-    fn parse_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
-        match &self.current_token().token_kind {
+    fn parse_top_statement(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+        match self.current_token().token_kind {
             USE => {
                 self.advance();
                 let name_to_use = self.expect(STRING)?.token_value;
@@ -63,6 +67,17 @@ impl Parser {
                     module: name_to_use,
                 }));
             }
+            _ => {
+                self.on_top_statement = false;
+                self.parse_stmt()
+            }
+        }
+    }
+
+    //WARN:Do not use import in other statements
+    // just on top of the program for now
+    fn parse_stmt(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
+        match &self.current_token().token_kind {
             VAR | CONST => {
                 let value = self.parse_var_decl_stmt();
                 self.expect(SEMICOLON)?;

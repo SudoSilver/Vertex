@@ -23,7 +23,7 @@ use crate::backend::{
     },
     errors::compiler::compiler_errors::CompileError::{self, CannotInferType, TypeMismatch},
     lexer::{
-        tokenizer::Tokenizer,
+        lexer::Lexer,
         tokens::{
             Token,
             TokenKind::{self, TRUE},
@@ -500,13 +500,12 @@ impl Compilable for FunctionCallNode {
 }
 
 //FIXME:Add check for cyclic importing until imports are not macroed.
-
 impl Compilable for ImportNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         /*
          * Lexer
          */
-        let mut main_lexer: Tokenizer = Tokenizer::new(
+        let mut main_lexer: Lexer = Lexer::new(
             fs::read_to_string(format!("src/{}", &self.module))
                 .expect(format!("Cannot find module {}", &self.module).as_ref()),
         );

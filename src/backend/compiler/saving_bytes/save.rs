@@ -4,7 +4,7 @@ use crate::backend::{
         byte_code::{Compilable, Compiler},
         instructions::Instructions,
     },
-    lexer::{tokenizer::Tokenizer, tokens::Token},
+    lexer::{lexer::Lexer, tokens::Token},
 };
 
 use std::{
@@ -31,7 +31,7 @@ pub fn compile_file_to_bytecode(dir: String) -> Vec<Instructions> {
     /*
      * Lexer
      */
-    let mut main_lexer: Tokenizer = Tokenizer::new(
+    let mut main_lexer: Lexer = Lexer::new(
         fs::read_to_string(&dir).expect(format!("Cannot find module {}", &dir).as_ref()),
     );
     let tokens: &Vec<Token> = match main_lexer.tokenize() {

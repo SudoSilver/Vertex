@@ -13,7 +13,7 @@ use crate::{
     },
 };
 
-pub struct Tokenizer {
+pub struct Lexer {
     current_token: char,
     token_idx: usize,
     token_count: usize,
@@ -21,7 +21,7 @@ pub struct Tokenizer {
     final_tokens: Vec<Token>,
 }
 
-impl Tokenizer {
+impl Lexer {
     pub fn new(text: String) -> Self {
         Self {
             token_idx: 0,
