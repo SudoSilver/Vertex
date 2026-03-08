@@ -499,6 +499,8 @@ impl Compilable for FunctionCallNode {
     }
 }
 
+//FIXME:Add check for cyclic importing until imports are not macroed.
+
 impl Compilable for ImportNode {
     fn compile(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         /*
