@@ -72,7 +72,10 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
     }
     compiler.optimize();
     ObjFile{
-        instructions:compiler.out
+        instructions:compiler.out,
+        name:dir.clone(),
+        imports:vec![]
+
     }
 }
 

@@ -15,9 +15,10 @@ use crate::backend::{
             comptime_value_for_check::ComptimeValueType::{
                 self, Array, Bool, Float, Int, StringValue, Void,
             },
-        }, functions_compiler_context::CompileTimeFunctionForCheck, instructions::Instructions::{
-            self, Add, Div, Mul, PushBool, PushNumber, PushString, Sub,
-        }, optimization::optimze::optimize
+        },
+        functions_compiler_context::CompileTimeFunctionForCheck,
+        instructions::Instructions::{self, Add, Div, Mul, PushBool, PushNumber, PushString, Sub},
+        optimization::optimze::optimize,
     },
     errors::compiler::compiler_errors::CompileError::{self, CannotInferType, TypeMismatch},
     lexer::{
@@ -26,13 +27,15 @@ use crate::backend::{
             Token,
             TokenKind::{self, TRUE},
         },
-    }, linker::link::{GlobalSymbols, Symbol},
-};
-use std::collections::HashMap;
-use std::{
-    fmt::{self, Debug, Formatter}, fs, process
+    },
+    linker::link::{GlobalSymbols, Symbol},
 };
 use CompileError::ConstantWithoutValue;
+use std::collections::HashMap;
+use std::{
+    fmt::{self, Debug, Formatter},
+    fs, process,
+};
 
 pub trait CompilableClone {
     fn clone_box(&self) -> Box<dyn Compilable>;
@@ -52,7 +55,7 @@ pub trait Compilable: Debug + CompilableClone {
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError>;
     /*
      * Types
-    */
+     */
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError>;
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError>;
 }
@@ -73,7 +76,7 @@ pub struct Compiler {
     pub current_fn: String,
     pub last_return_address: Option<usize>,
     pub lookup: GlobalSymbols,
-    pub variables_type:HashMap<String,ComptimeValueType>
+    pub variables_type: HashMap<String, ComptimeValueType>,
 }
 
 impl Default for Compiler {
@@ -89,8 +92,8 @@ impl Compiler {
             macros: MacroManager::new(),
             current_fn: "none".into(),
             last_return_address: None,
-            lookup:GlobalSymbols{
-                symbols:HashMap::new(),
+            lookup: GlobalSymbols {
+                symbols: HashMap::new(),
             },
             variables_type: HashMap::new(),
         }
@@ -110,7 +113,6 @@ impl Compilable for NumberNode {
     }
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
         Ok(())
-        
     }
 
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
@@ -120,7 +122,6 @@ impl Compilable for NumberNode {
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         Ok(Int)
     }
-
 }
 
 impl Compilable for FloatNode {
@@ -172,10 +173,10 @@ impl Debug for PrefixExpressionNode {
 
 impl Compilable for BinaryOpNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        let right = self.left.compile(compiler)?;
-        let left = self.right.compile(compiler)?;
+        let left = self.left.compile(compiler)?;
+        let right = self.right.compile(compiler)?;
         match self.op_tok {
-            TokenKind::PLUS => match (&left, &right) {
+            TokenKind::PLUS => match (&right, &left) {
                 (Int, Int) => {
                     compiler.out.push(Add);
                     Ok(Int)
@@ -190,11 +191,11 @@ impl Compilable for BinaryOpNode {
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "+",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::MINUS => match (&left, &right) {
+            TokenKind::MINUS => match (&right, &left) {
                 (Int, Int) => {
                     compiler.out.push(Sub);
                     Ok(Int)
@@ -205,11 +206,11 @@ impl Compilable for BinaryOpNode {
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "-",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::TIMES => match (&left, &right) {
+            TokenKind::TIMES => match (&right, &left) {
                 (Int, Int) => {
                     compiler.out.push(Mul);
                     Ok(Int)
@@ -220,11 +221,11 @@ impl Compilable for BinaryOpNode {
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "*",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::DIVIDE => match (&left, &right) {
+            TokenKind::DIVIDE => match (&right, &left) {
                 (Int, Int) => {
                     compiler.out.push(Div);
                     Ok(Int)
@@ -235,41 +236,41 @@ impl Compilable for BinaryOpNode {
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "/",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::MODULO => match (&left, &right) {
+            TokenKind::MODULO => match (&right, &left) {
                 (Int, Int) => {
                     compiler.out.push(Instructions::Modulo);
                     Ok(Int)
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "%",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::GREATER => match (&left, &right) {
+            TokenKind::GREATER => match (&right, &left) {
                 (Int, Int) | (Float, Float) | (Int, Float) | (Float, Int) => {
                     compiler.out.push(Instructions::GreaterThan);
                     Ok(Bool)
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: ">",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
-            TokenKind::LESS => match (&left, &right) {
+            TokenKind::LESS => match (&right, &left) {
                 (Int, Int) | (Float, Float) | (Int, Float) | (Float, Int) => {
                     compiler.out.push(Instructions::LessThan);
                     Ok(Bool)
                 }
                 _ => Err(CompileError::InvalidBinaryOp {
                     op: "<",
-                    left,
-                    right,
+                    left: right,
+                    right: left,
                 }),
             },
             _ => unreachable!(),
@@ -291,8 +292,78 @@ impl Compilable for BinaryOpNode {
     }
 
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-       //TODO:Add type checker 
-       todo!()
+        let left = self.left.my_type(compiler)?;
+        let right = self.right.my_type(compiler)?;
+
+        use ComptimeValueType::*;
+
+        match self.op_tok {
+            TokenKind::PLUS => match (&left, &right) {
+                (Int, Int) => Ok(Int),
+                (Float, Float) | (Int, Float) | (Float, Int) => Ok(Float),
+                (StringValue, StringValue) => Ok(StringValue),
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "+",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::MINUS => match (&left, &right) {
+                (Int, Int) => Ok(Int),
+                (Float, Float) | (Int, Float) | (Float, Int) => Ok(Float),
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "-",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::TIMES => match (&left, &right) {
+                (Int, Int) => Ok(Int),
+                (Float, Float) | (Int, Float) | (Float, Int) => Ok(Float),
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "*",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::DIVIDE => match (&left, &right) {
+                (Int, Int) => Ok(Int),
+                (Float, Float) | (Int, Float) | (Float, Int) => Ok(Float),
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "/",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::MODULO => match (&left, &right) {
+                (Int, Int) => Ok(Int),
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: "%",
+                    left,
+                    right,
+                }),
+            },
+
+            TokenKind::GREATER | TokenKind::LESS => match (&left, &right) {
+                (Int, Int) | (Float, Float) | (Int, Float) | (Float, Int) => Ok(Bool),
+
+                _ => Err(CompileError::InvalidBinaryOp {
+                    op: if self.op_tok == TokenKind::GREATER {
+                        ">"
+                    } else {
+                        "<"
+                    },
+                    left,
+                    right,
+                }),
+            },
+
+            _ => unreachable!(),
+        }
     }
 }
 
@@ -311,11 +382,10 @@ impl Compilable for ProgramNode {
         Ok(())
     }
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
-        for node in &self.program_nodes{
+        for node in &self.program_nodes {
             node.add_to_lookup(compiler)?;
         }
         Ok(())
-
     }
 
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
@@ -349,13 +419,14 @@ impl Compilable for StringNode {
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         Ok(StringValue)
     }
-
 }
 
 impl Compilable for VariableDefineNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         if self.is_const && self.value.is_none() {
-            return Err(ConstantWithoutValue { name: self.var_name.clone() });
+            return Err(ConstantWithoutValue {
+                name: self.var_name.clone(),
+            });
         }
 
         let inferred_type = if let Some(value) = &mut self.value {
@@ -372,9 +443,13 @@ impl Compilable for VariableDefineNode {
 
         let final_type = match (declared_type, inferred_type) {
             (Some(d), Some(i)) if d == i => d,
-            (Some(d), Some(i)) => return Err(TypeMismatch { expected: d, found: i }),
+            (Some(d), Some(i)) => {
+                return Err(TypeMismatch {
+                    expected: d,
+                    found: i,
+                });
+            }
             (Some(d), None) => {
-
                 match d {
                     StringValue => compiler.out.push(PushString("".to_string())),
                     Int => compiler.out.push(PushNumber(0f32)),
@@ -386,9 +461,12 @@ impl Compilable for VariableDefineNode {
                 d
             }
             (None, Some(i)) => i,
-            (None, None) => return Err(CannotInferType { name: self.var_name.clone() }),
+            (None, None) => {
+                return Err(CannotInferType {
+                    name: self.var_name.clone(),
+                });
+            }
         };
-
 
         //NOTE:We don't check the lookup because we enable imported variable shadowing for
         //simplicity
@@ -441,21 +519,27 @@ impl Compilable for VariableDefineNode {
             );
         }
         Ok(())
-
     }
 
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
         let my_type = self.my_type(compiler);
-        compiler.variables_type.insert(self.var_name.clone(), my_type.clone()?);
+        compiler
+            .variables_type
+            .insert(self.var_name.clone(), my_type.clone()?);
         if compiler.lookup.symbols.contains_key(&self.var_name.clone()) {
-            unsafe { compiler.lookup.symbols.get_mut(&self.var_name).unwrap_unchecked().symbol_value_type = Some(my_type?); }
+            unsafe {
+                compiler
+                    .lookup
+                    .symbols
+                    .get_mut(&self.var_name)
+                    .unwrap_unchecked()
+                    .symbol_value_type = Some(my_type?);
+            }
         }
         Ok(())
     }
 
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-
-
         let inferred_type = if let Some(value) = &self.value {
             Some(value.my_type(compiler)?)
         } else {
@@ -470,9 +554,13 @@ impl Compilable for VariableDefineNode {
 
         let final_type = match (declared_type, inferred_type) {
             (Some(d), Some(i)) if d == i => d,
-            (Some(d), Some(i)) => return Err(TypeMismatch { expected: d, found: i }),
+            (Some(d), Some(i)) => {
+                return Err(TypeMismatch {
+                    expected: d,
+                    found: i,
+                });
+            }
             (Some(d), None) => {
-
                 match d {
                     StringValue => compiler.out.push(PushString("".to_string())),
                     Int => compiler.out.push(PushNumber(0f32)),
@@ -484,10 +572,13 @@ impl Compilable for VariableDefineNode {
                 d
             }
             (None, Some(i)) => i,
-            (None, None) => return Err(CannotInferType { name: self.var_name.clone() }),
+            (None, None) => {
+                return Err(CannotInferType {
+                    name: self.var_name.clone(),
+                });
+            }
         };
         Ok(final_type)
-
     }
 }
 
@@ -495,13 +586,21 @@ impl Compilable for VariableAccessNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         //NOTE:We are first looking to module context because we enable priority for private
         //variables and constants and its simpler and maybe faster
-        let (value_type, tag) = if let Some(var) = compiler.context.get_variable(&self.variable_name) {
-            (var.value_type.clone(), var.tag.clone())
-        } else if let Some(symbol) = compiler.lookup.symbols.get(&self.variable_name) {
-            unsafe { (symbol.symbol_value_type.clone().unwrap_unchecked(), symbol.tag.clone()) }
-        }else {
-            return Err(CompileError::UndefinedVariable { name: self.variable_name.clone() });
-        };
+        let (value_type, tag) =
+            if let Some(var) = compiler.context.get_variable(&self.variable_name) {
+                (var.value_type.clone(), var.tag.clone())
+            } else if let Some(symbol) = compiler.lookup.symbols.get(&self.variable_name) {
+                unsafe {
+                    (
+                        symbol.symbol_value_type.clone().unwrap_unchecked(),
+                        symbol.tag.clone(),
+                    )
+                }
+            } else {
+                return Err(CompileError::UndefinedVariable {
+                    name: self.variable_name.clone(),
+                });
+            };
 
         compiler.out.push(Instructions::LoadVar(tag));
 
@@ -524,36 +623,52 @@ impl Compilable for VariableAccessNode {
         let value_type = if let Some(var) = compiler.variables_type.get(&self.variable_name) {
             var
         } else if let Some(symbol) = compiler.lookup.symbols.get(&self.variable_name) {
-            &symbol.symbol_value_type.clone().expect("Cannot have symbol without type")
-        }else {
-           unreachable!() 
+            &symbol
+                .symbol_value_type
+                .clone()
+                .expect("Cannot have symbol without type")
+        } else {
+            unreachable!()
         };
         Ok(value_type.clone())
-
     }
 }
 
 impl Compilable for VariableAssignNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-       
         //NOTE:We are first looking to module context because we enable priority for private
         //variables and constants and its simpler and maybe faster
-        let (is_const, expected_type, tag) =  if let Some(var) = compiler.context.get_variable(&self.name) {
-            (var.is_const, var.value_type.clone(), var.tag.clone())
-        } else if let Some(symbol) = compiler.lookup.symbols.get(&self.name) {
-            (symbol.is_constant, symbol.symbol_value_type.clone().expect("Something fucked up"), symbol.tag.clone())
-        }else {
-            return Err(CompileError::UndefinedVariable { name: self.name.clone() });
-        };
+        let (is_const, expected_type, tag) =
+            if let Some(var) = compiler.context.get_variable(&self.name) {
+                (var.is_const, var.value_type.clone(), var.tag.clone())
+            } else if let Some(symbol) = compiler.lookup.symbols.get(&self.name) {
+                (
+                    symbol.is_constant,
+                    symbol
+                        .symbol_value_type
+                        .clone()
+                        .expect("Something fucked up"),
+                    symbol.tag.clone(),
+                )
+            } else {
+                return Err(CompileError::UndefinedVariable {
+                    name: self.name.clone(),
+                });
+            };
 
         if is_const {
-            return Err(CompileError::ConstReassignment { name: self.name.clone() });
+            return Err(CompileError::ConstReassignment {
+                name: self.name.clone(),
+            });
         }
 
         let value_type = self.value.compile(compiler)?;
 
         if value_type != expected_type {
-            return Err(TypeMismatch { expected: expected_type, found: value_type });
+            return Err(TypeMismatch {
+                expected: expected_type,
+                found: value_type,
+            });
         }
 
         compiler.out.push(Instructions::SaveVar(tag));
@@ -591,7 +706,6 @@ impl Compilable for BoolNode {
     }
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
         Ok(())
-
     }
 
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
@@ -701,15 +815,13 @@ impl Compilable for FunctionCallNode {
     }
 
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-       todo!() 
+        todo!()
     }
 }
 
 //FIXME:Add check for cyclic importing until imports are not macro.
 impl Compilable for ImportNode {
     fn compile(&mut self, _compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        
-
         Ok(Void)
     }
     fn fmt_with_indent(&self, _f: &mut Formatter<'_>, _indent: usize) -> fmt::Result {
@@ -743,7 +855,6 @@ impl Compilable for ImportNode {
         parsed_ast.add_to_lookup(compiler)?;
         parsed_ast.add_to_type_check(compiler)?;
         Ok(())
-        
     }
 
     fn add_to_type_check(&self, _compiler: &mut Compiler) -> Result<(), CompileError> {

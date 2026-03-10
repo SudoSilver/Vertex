@@ -2,7 +2,7 @@
 use flare::backend::compiler::saving_bytes::save::build_directory;
 use serde::Deserialize;
 use std::env::{self};
-use std::fs::{self, File};
+use std::fs::{self, File, remove_dir_all};
 use std::io::Write;
 use std::process;
 
@@ -35,7 +35,7 @@ fn main() {
             }
             "build" => {
                 let debug = parse_flags(args);
-                
+
                 let tex = fs::read_to_string("prj.toml").unwrap();
                 let config: Config = match toml::from_str(&tex) {
                     Err(e) => {
@@ -51,6 +51,9 @@ fn main() {
                 });
                 build_directory("src/".to_string(), config.name, debug);
             }
+            "clear" => {
+                remove_dir_all("./out").unwrap();
+            }
             _ => {}
         }
     } else {
@@ -58,10 +61,10 @@ fn main() {
     }
 }
 
-fn parse_flags(args:Vec<String>) -> bool {
+fn parse_flags(args: Vec<String>) -> bool {
     for arg in args {
         if arg == "-d" {
-            return true
+            return true;
         }
     }
     false

@@ -5,7 +5,8 @@ use crate::{
             instructions::Instructions,
             comptime_variable_checker::comptime_value_for_check::ComptimeValueType
         },
-        linker::obj_file::ObjFile
+        linker::obj_file::ObjFile,
+        linker::sort_objs::sort_objs
     }
 };
 use crate::backend::compiler::instructions::Instructions::Halt;
@@ -26,8 +27,6 @@ pub struct Symbol{
     pub tag:String
 }
 
-
-
 pub struct Linker;
 
 impl Linker {
@@ -36,8 +35,10 @@ impl Linker {
 
         let mut program: Vec<Instructions> = Vec::new();
         let mut offset: usize = 0;
+        let sorted_objects = sort_objs(objects.clone()).unwrap();
 
-        for obj in objects {
+
+        for obj in sorted_objects {
 
             let mut patched = Vec::new();
 
