@@ -7,7 +7,6 @@ use crate::backend::{
             VariableAccessNode, VariableAssignNode, VariableDefineNode,
         },
         statements::{
-            functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode},
             if_statement::IfStatement,
             while_statement::WhileStatement,
         },
@@ -23,6 +22,7 @@ use crate::backend::{
         },
     },
 };
+use crate::backend::ast::functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode};
 
 pub struct Parser {
     tokens: Vec<Token>,

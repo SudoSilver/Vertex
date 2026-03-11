@@ -1,10 +1,12 @@
 //!Main flare package manager and linker
-use flare::backend::compiler::saving_bytes::save::build_directory;
+use flare::backend::saving_bytes::save::build_directory;
 use serde::Deserialize;
-use std::env::{self};
-use std::fs::{self, File, remove_dir_all};
-use std::io::Write;
-use std::process;
+use std::{
+    env::{self},
+    fs::{self, File, remove_dir_all},
+    io::Write,
+    process
+};
 
 #[derive(Deserialize)]
 struct Config {

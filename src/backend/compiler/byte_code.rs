@@ -36,6 +36,8 @@ use std::{
     fmt::{self, Debug, Formatter},
     fs, process,
 };
+use crate::backend::ast::nodes::CallType::Macro;
+use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedVariable;
 
 pub trait CompilableClone {
     fn clone_box(&self) -> Box<dyn Compilable>;
@@ -626,9 +628,9 @@ impl Compilable for VariableAccessNode {
             &symbol
                 .symbol_value_type
                 .clone()
-                .expect("Cannot have symbol without type")
+                .unwrap()
         } else {
-            unreachable!()
+            return Err(UndefinedVariable {name:self.variable_name.clone()})
         };
         Ok(value_type.clone())
     }
@@ -746,7 +748,7 @@ impl Compilable for ArrayNode {
 impl Compilable for FunctionCallNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         match self.call_type {
-            CallType::Macro => {
+            Macro => {
                 // HACK: temporarily remove the macro from the map so we can call `compile`.
                 // Otherwise, the borrow checker complains because `compile` needs
                 // a mutable reference to `compiler`, while the macro is stored inside it.
@@ -815,7 +817,20 @@ impl Compilable for FunctionCallNode {
     }
 
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        todo!()
+        if self.call_type == Macro{
+            let mac = compiler.macros.macros.remove(&self.name).ok_or(
+                CompileError::UnknownMacro {
+                    name: self.name.clone(),
+                },
+            )?;
+            let result = mac.my_type()?;
+            compiler.macros.macros.insert(self.name.clone(), mac);
+            Ok(result)
+        }
+        else {
+            Ok(compiler.context.get_fn(self.name.as_str())?.return_type.clone())
+
+        }
     }
 }
 
@@ -852,6 +867,9 @@ impl Compilable for ImportNode {
             println!("\x1b[1;31m{}\x1b[0m", e);
             process::exit(-2)
         });
+        /*
+        Lookup and type check
+        */
         parsed_ast.add_to_lookup(compiler)?;
         parsed_ast.add_to_type_check(compiler)?;
         Ok(())

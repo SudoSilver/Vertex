@@ -27,13 +27,26 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
 }
 //NOTE:This uses relative path from the compiler
 // so you need to cd in first, and then it run program main at the flauncher
+///This functions does compilation process of one single file. It creates tokens, build ast, create lookup for imported variables, updates types in type table, creates bytecode and optimizes it.
+/// # Returns
+/// Singular ObjFile
+/// # Example
+///```
+/// let code = "..." //some file
+/// let final_obj = compile_file_to_bytecode(code)
+/// //now you can do anything with the ObjFile
+/// ```
 pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
+    let file_start = Instant::now();
+
     /*
      * Lexer
      */
     let mut main_lexer: Lexer = Lexer::new(
-        fs::read_to_string(&dir).expect(format!("Cannot find module {}", &dir).as_ref()),
+        fs::read_to_string(&dir)
+            .expect(format!("Cannot find module {}", &dir).as_ref()),
     );
+
     let tokens: &Vec<Token> = match main_lexer.tokenize() {
         Err(e) => {
             println!("Error at {}:", &dir);
@@ -52,17 +65,20 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
         println!("\x1b[1;31m{}\x1b[0m", e);
         process::exit(-2)
     });
+
     /*
-     * Lookup table
-    */
+     * Lookup
+     */
     let mut compiler = Compiler::new();
     parsed_ast.add_to_lookup(&mut compiler).unwrap();
+
     /*
-    * Type checker
-    */
+     * Type check
+     */
     parsed_ast.add_to_type_check(&mut compiler).unwrap();
+
     /*
-     *Bytecode
+     * Bytecode
      */
     if let Err(e) = parsed_ast.compile(&mut compiler) {
         println!("Error at {}:", &dir);
@@ -70,12 +86,19 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
         println!("\x1b[1mTry:flarec error <error code> for fix\x1b[0m");
         process::exit(-3);
     }
-    compiler.optimize();
-    ObjFile{
-        instructions:compiler.out,
-        name:dir.clone(),
-        imports:vec![]
 
+    compiler.optimize();
+
+    println!(
+        "  compiled {:<40} {:.4}s",
+        dir,
+        file_start.elapsed().as_secs_f32()
+    );
+
+    ObjFile {
+        instructions: compiler.out,
+        name: dir.clone(),
+        imports: vec![],
     }
 }
 
@@ -84,45 +107,84 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
 pub fn build_directory(dir: String, out: String, debug: bool) {
     ensure_target_dir();
 
-    // Start timing
-    let start_time = Instant::now();
+    let total_start = Instant::now();
 
-    // Get the absolute path for display
     let src_path = Path::new(&dir)
         .canonicalize()
         .unwrap_or_else(|_| std::path::PathBuf::from(&dir));
 
     println!(
-        "\x1b[1;32mBuilding\x1b[0m {} -> out/{}",
+        "\n\x1b[1;32mBuilding\x1b[0m {} -> out/{}\n",
         src_path.display(),
         out
     );
-    //COMPILE PHASE
-    let mut objs:Vec<ObjFile> = Vec::new();
+
+    /*
+     * =====================
+     * COMPILE PHASE
+     * =====================
+     */
+    println!("\x1b[1mCompiling\x1b[0m");
+
+    let compile_start = Instant::now();
+    let mut objs: Vec<ObjFile> = Vec::new();
 
     for file in get_flare_files_recursive(&dir) {
-        let obj_file = compile_file_to_bytecode(file.clone());
-        objs.push(obj_file);
-
+        objs.push(compile_file_to_bytecode(file));
     }
-    //LINKING
+
+    println!(
+        "\x1b[32mFinished compiling\x1b[0m in {:.4}s\n",
+        compile_start.elapsed().as_secs_f32()
+    );
+
+    /*
+     * =====================
+     * LINKING
+     * =====================
+     */
+    println!("\x1b[1mLinking\x1b[0m");
+
+    let link_start = Instant::now();
+
     let mut final_file = Linker::link(objs);
-    for instr in &final_file{
-        println!("{:?}",instr)
+
+    if debug {
+        println!("\n--- BYTECODE ---");
+        for instr in &final_file {
+            println!("{:?}", instr);
+        }
+        println!("----------------\n");
     }
 
+    println!(
+        "\x1b[32mFinished linking\x1b[0m in {:.4}s\n",
+        link_start.elapsed().as_secs_f32()
+    );
 
-    //TODO:This will be used to write the whole .out after the linking
+    /*
+     * WRITE OUTPUT
+     */
+    println!("\x1b[1mWriting output\x1b[0m");
+
+    let write_start = Instant::now();
 
     let out_path = format!("out/{}", out);
-    compile_instr_to_bytes(out_path, &mut final_file).expect("Cannot load binary file");
+    compile_instr_to_bytes(out_path, &mut final_file)
+        .expect("Cannot load binary file");
 
+    println!(
+        "\x1b[32mFinished writing\x1b[0m in {:.4}s\n",
+        write_start.elapsed().as_secs_f32()
+    );
 
-    // Calculate elapsed time and show success message
-    let elapsed = start_time.elapsed();
-    let seconds = elapsed.as_secs_f32();
-
-    println!("\x1b[1;32mFinished\x1b[0m in {:.3} seconds", seconds);
+    /*
+     * TOTAL TIME
+     */
+    println!(
+        "\x1b[1;32mBuild finished\x1b[0m in {:.4}s",
+        total_start.elapsed().as_secs_f32()
+    );
 }
 
 fn compile_instr_to_bytes(
@@ -210,7 +272,7 @@ fn compile_instr_to_bytes(
 }
 
 fn ensure_target_dir() {
-    let target = Path::new("out");
+    let target = std::env::current_dir().unwrap().join("out");
     if !target.exists() {
         fs::create_dir(target).expect("Cannot create target directory");
     }

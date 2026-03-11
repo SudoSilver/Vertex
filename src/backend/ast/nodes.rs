@@ -4,7 +4,7 @@ use std::fmt;
 use std::fmt::{Debug, Formatter};
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub enum CallType {
     Macro,
     Fn,

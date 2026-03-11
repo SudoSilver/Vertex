@@ -8,7 +8,6 @@
 
 
 use flare::backend::{
-    compiler::saving_bytes::save::build_directory,
     errors::cli_errors::CommandLineError::{
         self, BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand,
     },
@@ -16,6 +15,7 @@ use flare::backend::{
 };
 use flare::runtime::runner::running_vm::run_code;
 use std::env;
+use flare::backend::saving_bytes::save::build_directory;
 
 fn main() {
     if let Err(e) = run_cli() {

@@ -1,13 +1,13 @@
 use std::fmt::Debug;
 
 use crate::backend::{
-    ast::statements::functions::args_node::FunctionArgs,
     compiler::{
         byte_code::{Compilable, Compiler}, comptime_variable_checker::{comptime_context::CompileContext, comptime_value_for_check::ComptimeValueType}, functions_compiler_context::CompileTimeFunctionForCheck
     },
     errors::compiler::compiler_errors::CompileError,
 };
-use crate::backend::linker::link::{ Symbol};
+use crate::backend::ast::functions::args_node::FunctionArgs;
+use crate::backend::linker::link::Symbol;
 use crate::backend::linker::link::SymbolType::Function;
 
 #[derive(Clone)]
