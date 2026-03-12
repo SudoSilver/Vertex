@@ -1,2 +1,3 @@
 mod constant_folding;
-pub mod optimze;
+pub mod optimize;
+mod push_pop_optimization;

@@ -1,6 +1,12 @@
-use crate::backend::ast::functions::args_node::FunctionArgs;
-use crate::backend::compiler::byte_code::Compilable;
-use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
+use crate::{
+    backend::{
+        ast::functions::args_node::FunctionArgs,
+        compiler::{
+            byte_code::Compilable,
+            comptime_variable_checker::comptime_value_for_check::ComptimeValueType
+        }
+    }
+};
 #[derive(Clone)]
 pub struct CompileTimeFunctionForCheck{
     pub return_type:ComptimeValueType,

@@ -26,7 +26,7 @@ The Flare VM uses a **two-phase execution model**: bytecode is first parsed into
 ┌─────────────────────────────────────────────────────────────┐
 │                     EXECUTION PHASE                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Binary File (.bytes)                                       │
+│  Binary File (.out)                                         │
 │       ↓                                                     │
 │  BytecodeLoader (pre_parsing.rs)                            │
 │       ↓                                                     │
@@ -80,7 +80,7 @@ loop {
 **Benefits:**
 - Jump addresses are **instruction indices** (0, 1, 2, 3...)
 - Optimizer works naturally with instruction indices
-- Jump fixing is simple (already implemented in `optimization/optimze.rs`)
+- Jump fixing is simple (already implemented in `optimization/optimize.rs`)
 - Can't jump into middle of instruction
 - Easy to debug ("instruction 5 is PushNumber")
 
@@ -221,7 +221,7 @@ Index | Instruction
 Located in `compiler/optimization/`:
 
 1. **constant_folding.rs**: Performs optimization, returns `(code, index_mapping)`
-2. **optimze.rs**: Fixes all jump addresses using the mapping
+2. **optimize.rs**: Fixes all jump addresses using the mapping
 
 ```rust
 pub fn optimize(code: Vec<Instructions>) -> Vec<Instructions> {
@@ -373,11 +373,11 @@ The instruction-based architecture enables:
 ❌ **Byte-based**: Jumps break when bytes removed (optimization nightmare)  
 ✅ **Instruction-based**: Jumps stay valid with instruction indices (optimization works)
 
-**The optimization jump fixing (`optimization/optimze.rs`) is still required and works perfectly with this architecture.**
+**The optimization jump fixing (`optimization/optimize.rs`) is still required and works perfectly with this architecture.**
 
 **Key insight:** Separate concerns
 - **Serialization** (save.rs): Deals with bytes
-- **Optimization** (optimze.rs): Deals with instruction indices
+- **Optimization** (optimize.rs): Deals with instruction indices
 - **Execution** (virtual_machine.rs): Deals with instruction indices
 
 This modular design makes the system maintainable and extensible.

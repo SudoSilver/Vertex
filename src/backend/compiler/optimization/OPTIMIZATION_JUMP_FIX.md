@@ -123,7 +123,7 @@ Contains the actual constant folding logic:
 - Tracks how instruction positions change during optimization
 - Returns a `HashMap<usize, usize>` mapping old indices to new indices
 
-### `src/compiler/optimization/optimze.rs`
+### `src/compiler/optimization/optimize.rs`
 Orchestrates optimization and fixes jump addresses:
 1. **`optimize()`** - Main entry point that calls optimization passes and fixes jumps
 2. **`fix_jump_addresses()`** - Updates all jump instructions using the index mapping
@@ -162,7 +162,7 @@ pub fn my_optimization(code: Vec<Instructions>) -> (Vec<Instructions>, HashMap<u
 }
 ```
 
-### Then in `optimze.rs`:
+### Then in `optimize.rs`:
 
 ```rust
 pub fn optimize(code: Vec<Instructions>) -> Vec<Instructions> {
@@ -226,6 +226,6 @@ dead_code_elim.rs    ──┤  Optimization passes
 my_optimization.rs   ──┘  (return code + mapping)
                         │
                         ▼
-                   optimze.rs
+                   optimize.rs
                    (orchestrates & fixes jumps)
 ```

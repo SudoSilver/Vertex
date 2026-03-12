@@ -2,14 +2,20 @@ use std::collections::HashMap;
 use crate::{
     backend::{
         compiler::{
-            instructions::Instructions,
-            comptime_variable_checker::comptime_value_for_check::ComptimeValueType
+            instructions::{
+                Instructions::{
+                    self,
+                    Halt
+                }
+            },
+            comptime_variable_checker::comptime_value_for_check::ComptimeValueType,
         },
-        linker::obj_file::ObjFile,
-        linker::sort_objs::sort_objs
+        linker::{
+            obj_file::ObjFile,
+            sort_objs::sort_objs_bfs
+        }
     }
 };
-use crate::backend::compiler::instructions::Instructions::Halt;
 
 pub enum SymbolType {
     Function,
@@ -35,8 +41,7 @@ impl Linker {
 
         let mut program: Vec<Instructions> = Vec::new();
         let mut offset: usize = 0;
-        let sorted_objects = sort_objs(objects.clone()).unwrap();
-
+        let sorted_objects = sort_objs_bfs(objects.clone()).unwrap();
 
         for obj in sorted_objects {
 

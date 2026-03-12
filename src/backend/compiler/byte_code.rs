@@ -18,7 +18,7 @@ use crate::backend::{
         },
         functions_compiler_context::CompileTimeFunctionForCheck,
         instructions::Instructions::{self, Add, Div, Mul, PushBool, PushNumber, PushString, Sub},
-        optimization::optimze::optimize,
+        optimization::optimize::optimize,
     },
     errors::compiler::compiler_errors::CompileError::{self, CannotInferType, TypeMismatch},
     lexer::{
