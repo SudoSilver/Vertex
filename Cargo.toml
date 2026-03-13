@@ -1,5 +1,5 @@
 [package]
-name = "flare"
+name = "vertex"
 version = "0.0.28-alpha"
 edition = "2024"
 

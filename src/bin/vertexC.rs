@@ -7,23 +7,23 @@
 
 
 
-use flare::backend::{
+use vertex::backend::{
     errors::cli_errors::CommandLineError::{
         self, BuildHasJustTwoArg, NoFileSpecifiedForBuild, NoSuchCommand,
     },
     errors::compiler::error_explain::ERROR_EXPLAIN,
 };
-use flare::runtime::runner::running_vm::run_code;
+use vertex::runtime::runner::running_vm::run_code;
 use std::env;
-use flare::backend::saving_bytes::save::build_directory;
+use vertex::backend::saving_bytes::save::build_directory;
 
 fn main() {
     if let Err(e) = run_cli() {
         eprintln!(
             "Fatal error:{:?}!",
             match e {
-                BuildHasJustTwoArg => "Build command has just two arguments",
-                NoFileSpecifiedForBuild => "No file specified for build",
+                CommandLineError::BuildHasJustTwoArg => "Build command has just two arguments",
+                CommandLineError::NoFileSpecifiedForBuild => "No file specified for build",
                 NoSuchCommand => "No such command",
             }
             .to_string()

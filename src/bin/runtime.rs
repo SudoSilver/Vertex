@@ -1,4 +1,4 @@
-use flare::runtime::virtual_machine::virtual_machine::VM;
+use vertex::runtime::virtual_machine::virtual_machine::VM;
 /* 
  * Old compilation testing
  * NOT PRODUCTION READY
