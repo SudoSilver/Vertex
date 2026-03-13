@@ -26,7 +26,7 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
     }
 }
 //NOTE:This uses relative path from the compiler
-// so you need to cd in first, and then it run program main at the flauncher
+// so you need to cd in first, and then it run program main at the vertex
 ///This functions does compilation process of one single file. It creates tokens, build ast, create lookup for imported variables, updates types in type table, creates bytecode and optimizes it.
 /// # Returns
 /// Singular ObjFile
@@ -82,7 +82,7 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
     if let Err(e) = parsed_ast.compile(&mut compiler) {
         println!("Error at {}:", &dir);
         println!("\x1b[1;31m{}\x1b[0m", e);
-        println!("\x1b[1mTry:flarec error <error code> for fix\x1b[0m");
+        println!("\x1b[1mTry:vertexC error <error code> for fix\x1b[0m");
         process::exit(-3);
     }
 
@@ -94,10 +94,11 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
         file_start.elapsed().as_secs_f32()
     );
 
+
     ObjFile {
         instructions: compiler.out,
-        name: dir.clone(),
-        imports: compiler.imports,
+        name: dir.clone().replace("src/", ""),
+        imports: compiler.imports.clone(),
     }
 }
 
@@ -126,7 +127,7 @@ pub fn build_directory(dir: String, out: String, debug: bool) {
     let compile_start = Instant::now();
     let mut objs: Vec<ObjFile> = Vec::new();
 
-    for file in get_flare_files_recursive(&dir) {
+    for file in get_vertex_files_recursive(&dir) {
         objs.push(compile_file_to_bytecode(file));
     }
 
@@ -280,7 +281,7 @@ fn ensure_target_dir() {
 }
 
 
-fn get_flare_files_recursive(dir: &str) -> Vec<String> {
+fn get_vertex_files_recursive(dir: &str) -> Vec<String> {
     let mut files = Vec::new();
 
     for entry in WalkDir::new(dir) {

@@ -20,7 +20,6 @@ pub struct FunctionDefineNode {
 
 impl Compilable for FunctionDefineNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        println!("{:?}",&self.return_type);
         let return_type = CompileContext::get_type(&self.return_type.clone().unwrap())?;
         let args = self.args.clone(); 
         compiler.context.add_function(
@@ -37,7 +36,6 @@ impl Compilable for FunctionDefineNode {
     }
 
     fn fmt_with_indent(&self, f: &mut std::fmt::Formatter<'_>, indent: usize) -> std::fmt::Result {
-
         Ok(())
     }
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
@@ -55,7 +53,7 @@ impl Compilable for FunctionDefineNode {
     }
 
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
-        todo!()
+        Ok(())
     }
 
     fn my_type(&self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {

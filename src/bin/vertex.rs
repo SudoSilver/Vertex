@@ -1,4 +1,4 @@
-//!Main flare package manager and linker
+//!Main vertex package manager and linker
 use vertex::backend::saving_bytes::save::build_directory;
 use serde::Deserialize;
 use std::{

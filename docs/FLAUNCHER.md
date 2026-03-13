@@ -1,12 +1,12 @@
-# Flauncher
+# vertex
 
-Flauncher is build system for flare that does all linkig etc. 
+vertex is build system for flare that does all linkig etc. 
 
 ## New project
 
 Create new project using:
 ```bash
-flauncher create my-project
+vertex create my-project
 ```
 
 It creates project with this structure:
@@ -21,9 +21,9 @@ prj.toml
 
 ## Building project
 
-For building you can use the depracated ```flarec build foo bar``` or the new
+For building you can use the depracated ```vertexC build foo bar``` or the new
 ```bash
-flauncher build
+vertex build
 ```
 
 that build project starting from main.flare in to out/ based on ```name``` in prj.toml

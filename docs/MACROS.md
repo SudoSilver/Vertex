@@ -18,7 +18,7 @@ const userName:string = readInput!("Whats your name?");
 writeLn!("Your name is",userName)
 ```
 ```bash
-$ flarec exec input.flare input.out
+$ vertexC exec input.flare input.out
 ```
 ```
 Whats your name?simon
@@ -56,7 +56,7 @@ else{
 }
 ```
 ```bash
-$ flarec exec process.flare process.out
+$ vertexC exec process.flare process.out
 ```
 ```
 Exited with code `5`

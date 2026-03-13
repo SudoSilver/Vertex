@@ -18,7 +18,7 @@ writeLn!(hello_world);
 ```
 Then run code:
 ```bash
-$ flarec exec Hello.flare HelloWorld.out
+$ vertexC exec Hello.flare HelloWorld.out
 ```
 ```
 Hello world!
@@ -79,7 +79,7 @@ var bar:string = "Hello world";
 // Or
 var hello:string;
 
-//But you can't do this becouse flarec cannot infer type
+//But you can't do this becouse vertexC cannot infer type
 var this_wont_work;
 ```
 ### Constant decleration

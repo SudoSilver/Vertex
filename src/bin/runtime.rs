@@ -4,10 +4,13 @@ use vertex::runtime::virtual_machine::virtual_machine::VM;
  * NOT PRODUCTION READY
  * 
  * */
-static PROGRAM: &[u8] = include_bytes!("../../out/program.bin");
+/*static PROGRAM: &[u8] = include_bytes!("../../out/program.bin");
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut vm = VM::from_bytes(PROGRAM.to_vec())?;
     vm.run()?;
     Ok(())
+}*/
+fn main() {
+    todo!()
 }

@@ -1,8 +1,8 @@
 // NOTE:
-// This is the main Flare compiler CLI used until `flauncher` is ready for production.
+// This is the main Flare compiler CLI used until `vertex` is ready for production.
 // It is intended to compile a single file without external dependencies.
 // Currently it does not have a working linker.
-// Once `flauncher` is ready, this tool will likely be replaced or deprecated and not be ready for
+// Once `vertex` is ready, this tool will likely be replaced or deprecated and not be ready for
 // production.
 
 
@@ -59,7 +59,7 @@ fn run_cli() -> Result<(), CommandLineError> {
         }
         "error" => {
             if args.len() != 3 {
-                eprintln!("Usage: flarec explain <ERROR_CODE>");
+                eprintln!("Usage: vertexC error <ERROR_CODE>");
                 return Ok(());
             }
 

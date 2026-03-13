@@ -2,8 +2,8 @@ from os import path, makedirs, name, chdir
 import shutil
 import subprocess
 
-REPO = "https://github.com/DomioKing653/flare"
-DIR = "flare"
+REPO = "https://github.com/DomioKing653/Vertex"
+DIR = "Vertex"
 
 
 def run(cmd):
@@ -20,26 +20,26 @@ else:
 # build binaries
 chdir(DIR)
 
-run(["cargo", "build", "--bin", "flarec", "--release"])
-run(["cargo", "build", "--bin", "flauncher", "--release"])
+run(["cargo", "build", "--bin", "vertexC", "--release"])
+run(["cargo", "build", "--bin", "vertex", "--release"])
 
 target = path.join("target", "release")
 
 if name == "nt":
-    flarec = path.join(target, "flarec.exe")
-    flauncher = path.join(target, "flauncher.exe")
+    vertexC = path.join(target, "vertexC.exe")
+    vertex = path.join(target, "vertex.exe")
     install_dir = r"C:\Program Files\flare"
 else:
-    flarec = path.join(target, "flarec")
-    flauncher = path.join(target, "flauncher")
+    vertexC = path.join(target, "vertexC")
+    vertex = path.join(target, "vertex")
     install_dir = "/usr/local/bin"
 
 # create install dir if needed
 makedirs(install_dir, exist_ok=True)
 
 # copy binaries
-shutil.copy(flarec, install_dir)
-shutil.copy(flauncher,
+shutil.copy(vertexC, install_dir)
+shutil.copy(vertex,
             install_dir)
 
-print('Installed flarec and flauncher to', install_dir)
+print('Installed vertexC and vertex to', install_dir)

@@ -19,7 +19,7 @@ pub fn sort_objs_bfs(mut objs: Vec<ObjFile>) -> Result<Vec<ObjFile>, String> {
     for name in obj_map.keys() {
         indegree.insert(name.clone(), 0);
     }
-
+    
     // build graph
     for (name, obj) in &obj_map {
         for import in &obj.imports {

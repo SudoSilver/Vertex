@@ -19,7 +19,7 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         "Cannot infer type for variable.\n\
          Example:\n\
         ```\n\
-         var x; // no type, no initial value so flare cannot infer the type\n\
+         var x; // no type, no initial value so Vertex cannot infer the type\n\
         ```\n\
          Fix: Specify type explicitly or assign a value.",
     );
