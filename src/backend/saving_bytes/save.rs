@@ -27,6 +27,7 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
 }
 //NOTE:This uses relative path from the compiler
 // so you need to cd in first, and then it run program main at the vertex
+
 ///This functions does compilation process of one single file. It creates tokens, build ast, create lookup for imported variables, updates types in type table, creates bytecode and optimizes it.
 /// # Returns
 /// Singular ObjFile
@@ -266,6 +267,7 @@ fn compile_instr_to_bytes(
             Instructions::ReadInput => {
                 writer.write_all(&[opcode])?;
             }
+            Instructions::Call(_)=>unreachable!(),
 
             Instructions::Halt => writer.write_all(&[opcode])?,
         }

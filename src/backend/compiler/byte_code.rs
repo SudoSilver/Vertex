@@ -39,7 +39,6 @@ use std::{
 use crate::backend::ast::nodes::CallType::Macro;
 use crate::backend::compiler::instructions::Instructions::Drop;
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedVariable;
-
 pub trait CompilableClone {
     fn clone_box(&self) -> Box<dyn Compilable>;
 }
@@ -115,6 +114,44 @@ impl Compiler {
         }
         self.context.exit_scope();
     }
+    pub fn add_function(&mut self)->Result<(),CompileError>{
+        self.out.push(Instructions::Jump(0));
+        let jump_placeholder = self.out.len();
+        let functions: Vec<_> = self.context.functions
+            .iter()
+            .map(|(name, function)| (name.clone(), function.clone()))
+            .collect();
+        for (name,function) in functions{
+            let length = self.out.len();
+            for instruction in &mut self.out {
+                if instruction.clone() == Instructions::Call(name.clone()) {
+                   *instruction = Instructions::Jump(length);
+                } 
+            }
+            self.context.enter_scope();
+            for argumet in function.args{ 
+                let argument_type = self.context.get_type(&argumet.argument_type)?;
+                self.context.add_variable(
+                    argumet.name.clone(),
+                    ComptimeVariable {
+                        value_type: argument_type.clone(),
+                        is_const: false,
+                        tag: format!("{}{}", argumet.name.clone(),name.clone()),
+                    },
+                )?;
+
+            }
+
+            for instruction in &mut function.body.clone()  {
+                instruction.compile(self)?;
+                
+            }
+            self.context.exit_scope();
+        }
+        self.out[jump_placeholder] = Instructions::Jump(self.out.len());
+        Ok(())
+    }
+
 }
 impl Compilable for NumberNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
@@ -385,6 +422,7 @@ impl Compilable for ProgramNode {
         for program_node in &mut self.program_nodes {
             program_node.compile(compiler)?;
         }
+        compiler.add_function()?;
         Ok(Void)
     }
     fn fmt_with_indent(&self, f: &mut Formatter<'_>, indent: usize) -> fmt::Result {
@@ -775,7 +813,7 @@ impl Compilable for FunctionCallNode {
             }
             CallType::Fn => {
                 let old_fn = compiler.current_fn.clone();
-                let mut called_function: CompileTimeFunctionForCheck =
+                let called_function: CompileTimeFunctionForCheck =
                     compiler.context.get_fn(&self.name)?;
                 compiler.current_fn = self.name.clone();
                 if self.args.len() != called_function.args.len() {
@@ -788,15 +826,6 @@ impl Compilable for FunctionCallNode {
                 compiler.context.enter_scope();
                 for (called_arg, fnc_arg) in self.args.iter_mut().zip(called_function.args.iter()) {
                     let called_args_type = called_arg.as_mut().compile(compiler)?;
-
-                    compiler.context.add_variable(
-                        fnc_arg.name.clone(),
-                        ComptimeVariable {
-                            value_type: called_args_type.clone(),
-                            is_const: false,
-                            tag: format!("{}{}", fnc_arg.name.clone(), self.name.clone()),
-                        },
-                    )?;
                     let tag = compiler.context.get_variable(&fnc_arg.name).unwrap();
                     compiler.out.push(Instructions::SaveVar(tag.tag.clone()));
                     let final_fnc_type = compiler.context.get_type(&fnc_arg.argument_type)?;
@@ -807,9 +836,10 @@ impl Compilable for FunctionCallNode {
                         });
                     }
                 }
-                for statement in &mut called_function.body {
-                    statement.compile(compiler)?;
-                }
+                //for statement in &mut called_function.body {
+                //    statement.compile(compiler)?;
+                //}
+                compiler.out.push(Instructions::Call(self.name.clone()));
                 compiler.exit_scope();
                 compiler.current_fn = old_fn;
                 Ok(Void)

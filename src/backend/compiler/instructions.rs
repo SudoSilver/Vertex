@@ -34,12 +34,12 @@ pub const LOAD_VAR:u8 = 51;
 
 //HALT
 pub const HALT:u8 = 255;
-#[derive(Debug, Clone,PartialEq,)]
+#[derive(Debug, Clone,PartialEq)]
 pub enum Instructions {
     Add,
     Sub,
     Div,
-    Mul ,
+    Mul,
     Modulo ,
     //Comparison
     GreaterThan,
@@ -63,8 +63,8 @@ pub enum Instructions {
     Jump(usize),
     JumpIfFalse(usize),
     JumpIfTrue(usize),
-
-
+    //Functions
+    Call(String),
     // Halt
     Halt,
 }
@@ -99,6 +99,7 @@ impl Instructions {
             Instructions::Jump(_) => JUMP,
             Instructions::JumpIfFalse(_) => JUMP_IF_FALSE,
             Instructions::JumpIfTrue(_) => JUMP_IF_TRUE,
+            Instructions::Call(fnc)=>unreachable!(),
 
             Instructions::Halt => HALT,
         }

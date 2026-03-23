@@ -238,6 +238,7 @@ impl VM {
                     self.variables.remove(&variable);
                     self.ip += 1;
                 }
+                Instructions::Call(_)=>unreachable!(),
                 Instructions::Halt => {
                     if !self.stack.is_empty() {
                         println!("{:?}", self.stack[0]);

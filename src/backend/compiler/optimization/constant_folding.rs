@@ -25,7 +25,6 @@ pub fn constant_folding(code: Vec<Instructions>) -> (Vec<Instructions>, HashMap<
                 old_to_new.insert(i, out.len());
                 old_to_new.insert(i + 1, out.len());
                 old_to_new.insert(i + 2, out.len());
-
                 out.push(Instructions::PushNumber(a + b));
                 i += 3;
             }

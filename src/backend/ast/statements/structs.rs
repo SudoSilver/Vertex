@@ -9,10 +9,14 @@ use crate::backend::errors::compiler::compiler_errors::CompileError;
 pub struct StructVariable{
     pub var_type:String
 }
-
 #[derive(Clone)]
 pub struct StructDefineNode{
-    pub args:Vec<StructVariable>
+    pub args:Vec<StructVariable>,
+    pub name:String
+ 
+}
+pub struct ComptimeStructForCheck{
+    variables:Vec<StructVariable>
 }
 
 impl Compilable for StructDefineNode{
@@ -26,8 +30,8 @@ impl Compilable for StructDefineNode{
         Ok(())
         
     }
-
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
+        compiler.context.add_type(self.name.clone())?;
         todo!()
     }
 

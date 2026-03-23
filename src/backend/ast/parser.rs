@@ -49,7 +49,6 @@ impl Parser {
 
     pub fn parse(&mut self) -> Result<Box<dyn Compilable>, ParserError> {
         let mut program: ProgramNode = ProgramNode::new();
-
         while self.on_top_statement && self.current_token().token_kind != EOF {
             program.program_nodes.push(self.parse_top_statement()?);
         }
@@ -133,7 +132,6 @@ impl Parser {
                         body,
                         args,
                     }))
-
                 }else {
                     Err(UnexpectedToken {
                         expected:VAR,
@@ -269,7 +267,6 @@ impl Parser {
             }
         }
     }
-
     fn parse_var_decl_stmt(&mut self,is_pub:bool) -> Result<Box<dyn Compilable>, ParserError> {
         let is_const: bool;
         if self.current_token().token_kind == CONST {

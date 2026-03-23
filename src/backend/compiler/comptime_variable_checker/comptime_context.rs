@@ -6,22 +6,26 @@ use crate::backend::compiler::comptime_variable_checker::comptime_value_for_chec
 };
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedType;
 use std::collections::HashMap;
+use crate::backend::ast::statements::structs::ComptimeStructForCheck;
 
 pub struct CompileContext {
     pub variables: HashMap<String, ComptimeVariable>,
-    pub functions: Vec<HashMap<String, CompileTimeFunctionForCheck>>,
+    pub functions: HashMap<String, CompileTimeFunctionForCheck>,
     pub scopes: Vec<HashMap<String, ComptimeVariable>>,
     current_variable_tag: String,
+    pub structs:Vec<HashMap<String,ComptimeStructForCheck>>,
     pub types:Vec<String>
 }
 impl CompileContext {
     pub fn new() -> Self {
         Self {
             variables: HashMap::new(),
-            functions: vec![HashMap::new()],
+            functions: HashMap::new(),
             scopes: vec![HashMap::new()],
             current_variable_tag: "default".into(),
-            types:Vec::new()
+            types:Vec::new(),
+            structs:Vec::new()
+
         }
     }
     pub fn add_type(&mut self,type_to_add:String)->Result<(),CompileError>{
@@ -78,8 +82,8 @@ impl CompileContext {
         name: String,
         fnc: CompileTimeFunctionForCheck,
     ) -> Result<(), CompileError> {
-        let curren_fnc_scope = self.functions.last_mut().unwrap();
-        if curren_fnc_scope.contains_key(&name) {
+        let curren_fnc_scope = &mut self.functions;
+        if curren_fnc_scope.contains_key(&name).clone() {
             return Err(CompileError::FunctionAlredyExists { name });
         } else {
             curren_fnc_scope.insert(name, fnc);
@@ -88,8 +92,6 @@ impl CompileContext {
     }
     pub fn get_fn(&mut self, name: &str) -> Result<CompileTimeFunctionForCheck, CompileError> {
         self.functions
-            .last_mut()
-            .unwrap()
             .get(name)
             .cloned()
             .ok_or(CompileError::UnknownFunction {
