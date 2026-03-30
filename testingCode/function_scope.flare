@@ -11,8 +11,6 @@ fnc printunderscores(count:int):void{
 	writeLn!(""); 
 	foo();
 }
-
-
 var it:int = 0;
 const size:int = 10;
 printunderscores(size);

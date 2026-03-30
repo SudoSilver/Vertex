@@ -40,6 +40,8 @@ use std::{
 use crate::backend::ast::nodes::CallType::Macro;
 use crate::backend::compiler::instructions::Instructions::Drop;
 use crate::backend::errors::compiler::compiler_errors::CompileError::UndefinedVariable;
+
+
 pub trait CompilableClone {
     fn clone_box(&self) -> Box<dyn Compilable>;
 }
@@ -122,7 +124,7 @@ impl Compiler {
             .collect();
         //NOTE:I know that this probably could be done fast becouse this is like O(F² * B) but i
         //was to lazy to implemnt that :D
-         for (name,function) in functions{
+        for (name,function) in functions{
             let length = self.out.len();
             for instruction in &mut self.out {
                 if let Instructions::Call(n) = instruction {
@@ -142,7 +144,6 @@ impl Compiler {
                         tag: format!("{}_{}", argumet.name.clone(),name.clone()),
                     },
                 )?;
-
             }
             for instruction in &mut function.body.clone()  {
                 instruction.compile(self)?;
@@ -153,11 +154,13 @@ impl Compiler {
         }
         self.out[jump_placeholder-1] = Instructions::Jump(self.out.len());
         Ok(())
-    }
+    } 
 
 }
+// 
+// Nodes
+//
 impl Compilable for NumberNode {
-
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         compiler.out.push(PushNumber(self.number as f32));
         Ok(Int)
@@ -168,7 +171,6 @@ impl Compilable for NumberNode {
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
         Ok(())
     }
-
     fn add_to_type_check(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
         Ok(())
     }
@@ -791,8 +793,8 @@ impl Compilable for FunctionCallNode {
         match self.call_type {
             Macro => {
                 // HACK: temporarily remove the macro from the map so we can call `compile`.
-                // Otherwise, the borrow checker complains because `compile` needs
-                // a mutable reference to `compiler`, while the macro is stored inside it.
+                //Otherwise, the borrow checker complains because `compile` needs
+                //a mutable reference to `compiler`, while the macro is stored inside it.
                 let mac = compiler.macros.macros.remove(&self.name).ok_or(
                     CompileError::UnknownMacro {
                         name: self.name.clone(),
@@ -804,10 +806,8 @@ impl Compilable for FunctionCallNode {
                 Ok(result)
             }
             CallType::Fn => {
-                let old_fn = compiler.current_fn.clone();
                 let called_function: CompileTimeFunctionForCheck =
                     compiler.context.get_fn(&self.name)?;
-                compiler.current_fn = self.name.clone();
                 if self.args.len() != called_function.args.len() {
                     return Err(CompileError::UnexpectedFunctionArguments {
                         name: self.name.clone(),
@@ -815,7 +815,6 @@ impl Compilable for FunctionCallNode {
                         found: self.args.len(),
                     });
                 }
-                compiler.context.enter_scope();
                 for (called_arg, fnc_arg) in self.args.iter_mut().zip(called_function.args.iter()) {
                     let called_args_type = called_arg.as_mut().compile(compiler)?;
                     compiler.out.push(Instructions::SaveVar(format!("{}_{}",fnc_arg.name.clone(),self.name.clone())));
@@ -830,8 +829,6 @@ impl Compilable for FunctionCallNode {
 
                 compiler.out.push(Instructions::PushUsize(compiler.out.len()+2));
                 compiler.out.push(Instructions::Call(self.name.clone()));
-                compiler.current_fn = old_fn;
-                compiler.exit_scope();
                 Ok(Void)
             }
         }
@@ -859,8 +856,7 @@ impl Compilable for FunctionCallNode {
             Ok(result)
         }
         else {
-            Ok(compiler.function_types.get(&self.name).unwrap().clone())
-
+            Ok(compiler.context.get_fn(&self.name)?.return_type)
         }
     }
 }
@@ -872,10 +868,15 @@ impl Compilable for ReturnNode {
         Ok(())
     }
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
-        if let Some(mut r) = self.returns.clone(){
-            r.compile(compiler)?;
+        if compiler.context.function_depth > 0 {
+            if let Some(mut r) = self.returns.clone(){
+                r.compile(compiler)?;
+            }
+            compiler.out.push(Instructions::JumpOnLastOnStack);    
         }
-        compiler.out.push(Instructions::JumpOnLastOnStack);
+        else {
+            return Err(CompileError::CannotReturnOutisdeOfFunction {  }); 
+        }
         Ok(Void)
         
     }

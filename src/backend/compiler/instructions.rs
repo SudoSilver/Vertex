@@ -1,9 +1,9 @@
 // MATH
 pub const ADD:u8 = 1;
-pub const  SUB:u8 = 2;
-pub const  DIV:u8 = 3;
-pub const  MUL:u8 = 4;
-pub const  MODULO:u8 = 5;
+pub const SUB:u8 = 2;
+pub const DIV:u8 = 3;
+pub const MUL:u8 = 4;
+pub const MODULO:u8 = 5;
 
 //COMP
 pub const GREATER:u8 = 6;
@@ -17,7 +17,7 @@ pub const JUMP_LAST_ON_STACK:u8 = 43;
 
 // VALS
 pub const  PUSH_STR:u8 = 20;
-pub const  PUSH_BOOL:u8 = 21;
+pub const PUSH_BOOL:u8 = 21;
 pub const PUSH_NUMB:u8 = 22;
 pub const PUSH_USIZE:u8=23;
 pub const DROP:u8 = 125;
@@ -31,10 +31,8 @@ pub const PROCESS_EXIT:u8 = 61;
 // VARS
 pub const STORE_VAR:u8 = 50;
 pub const LOAD_VAR:u8 = 51;
-
-
-
 //HALT
+
 pub const HALT:u8 = 255;
 #[derive(Debug, Clone,PartialEq)]
 pub enum Instructions {
@@ -106,9 +104,9 @@ impl Instructions {
             Instructions::JumpIfFalse(_) => JUMP_IF_FALSE,
             Instructions::JumpIfTrue(_) => JUMP_IF_TRUE,
             Instructions::JumpOnLastOnStack=>JUMP_LAST_ON_STACK,
-            Instructions::Call(fnc)=>unreachable!(),
-
             Instructions::Halt => HALT,
+            _ => unreachable!()
+            
         }
     }
 }

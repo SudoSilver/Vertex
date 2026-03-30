@@ -71,7 +71,11 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
      * Lookup
      */
     let mut compiler = Compiler::new();
-    parsed_ast.add_to_lookup(&mut compiler).unwrap();
+    if let Err(e) = parsed_ast.add_to_lookup(&mut compiler){
+        println!("Error at {}:", &dir);
+        println!("\x1b[1;31m{}\x1b[0m", e);
+        process::exit(-3);
+    }
     /*
      * Type check
      */
@@ -100,10 +104,11 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
         name: dir.clone().replace("src/", ""),
         imports: compiler.imports.clone(),
     }
+
 }
 
 //NOTE:This is just entry point for the compilation process, and it
-// shouldn't be used any further in the compilation process
+//shouldn't be used any further in the compilation process
 pub fn build_directory(dir: String, out: String, debug: bool) {
     ensure_target_dir();
 
@@ -148,6 +153,15 @@ pub fn build_directory(dir: String, out: String, debug: bool) {
    final_file = Compiler::optimize(final_file);
 
 
+    if debug {
+        println!("\n--- BYTECODE ---");
+        let mut i = 0;
+        for instr in &final_file {
+            println!("{}->{:?}", i,instr);
+            i+=1;
+        }
+        println!("----------------\n");
+    }
     println!(
         "\x1b[32mFinished linking\x1b[0m in {:.4}s\n",
         link_start.elapsed().as_secs_f32()
@@ -176,16 +190,6 @@ pub fn build_directory(dir: String, out: String, debug: bool) {
         "\x1b[1;32mBuild finished\x1b[0m in {:.4}s",
         total_start.elapsed().as_secs_f32()
     );
-
-    if debug {
-        println!("\n--- BYTECODE ---");
-        let mut i = 0;
-        for instr in &final_file {
-            println!("{}->{:?}", i,instr);
-            i+=1;
-        }
-        println!("----------------\n");
-    }
 }
 
 fn compile_instr_to_bytes(

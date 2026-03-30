@@ -7,8 +7,6 @@ use crate::backend::{
     errors::compiler::compiler_errors::CompileError,
 };
 use crate::backend::ast::functions::args_node::FunctionArgs;
-use crate::backend::linker::link::Symbol;
-use crate::backend::linker::link::SymbolType::Function;
 
 #[derive(Clone)]
 pub struct FunctionDefineNode {
@@ -21,16 +19,6 @@ pub struct FunctionDefineNode {
 impl Compilable for FunctionDefineNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         let return_type = compiler.context.get_type(&self.return_type.clone().unwrap())?;
-        let args = self.args.clone(); 
-        compiler.context.add_function(
-            self.id.clone(),
-            CompileTimeFunctionForCheck{
-                is_pub:true,
-                return_type:return_type.clone(),
-                args,
-                body:self.body.clone()
-          }
-        )?;
         Ok(return_type)
         
     }
@@ -39,15 +27,13 @@ impl Compilable for FunctionDefineNode {
         Ok(())
     }
     fn add_to_lookup(&self, compiler: &mut Compiler) -> Result<(), CompileError> {
-        unsafe {
-            compiler.lookup.symbols.insert(self.id.clone(), Symbol {
-                symbol_value_type: Some(compiler.context.get_type(&self.return_type.clone().unwrap_unchecked())?),
-                symbol_type:Function,
-                is_constant:false,
-                tag:self.id.to_string(),
+        compiler.context.add_function(self.id.clone(), CompileTimeFunctionForCheck{
+            is_pub:false,
+            return_type:compiler.context.get_type(&self.return_type.clone().unwrap())?,
+            body:self.body.clone(),
+            args:self.args.clone()
 
-            })
-        };
+        })?;
         Ok(())
         
     }

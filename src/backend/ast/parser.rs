@@ -19,13 +19,13 @@ use crate::backend::{
         },
     },
 };
+
 use crate::backend::ast::functions::{args_node::FunctionArgs, function_nodes::FunctionDefineNode};
 
 pub struct Parser {
     tokens: Vec<Token>,
     token_idx: usize,
     on_top_statement: bool,
-    in_function:bool,
 }
 impl Parser {
     pub fn new(token_list: Vec<Token>) -> Self {
@@ -33,7 +33,6 @@ impl Parser {
             tokens: token_list,
             token_idx: 0,
             on_top_statement: true,
-            in_function:false
         }
     }
 
@@ -115,6 +114,7 @@ impl Parser {
                                 name: arg_name.token_value,
                                 argument_type: arg_type.token_value,
                             });
+                           
 
                             if self.current_token().token_kind == COMMA {
                                 self.advance();
@@ -228,7 +228,6 @@ impl Parser {
                 return Ok(Box::new(WhileStatement { condition, body }));
             }
             FNC => {
-                self.in_function = true;
                 let mut args = Vec::new();
                 self.advance(); //FN
                 let id = self.expect(IDENTIFIER)?;
@@ -266,7 +265,6 @@ impl Parser {
                     body.push(self.parse_stmt()?);
                 }
                 self.expect(CLOSINGBRACE)?;
-                self.in_function = false;
 
                 Ok(Box::new(FunctionDefineNode {
                     id: id.token_value,
@@ -296,7 +294,6 @@ impl Parser {
 
         if self.current_token().token_kind == COLON {
             self.advance();
-
             value_type = Some(self.expect(IDENTIFIER)?.token_value);
         }
         let value: Option<Box<dyn Compilable>>;

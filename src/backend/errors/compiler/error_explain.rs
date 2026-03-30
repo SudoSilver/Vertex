@@ -115,8 +115,6 @@ pub static ERROR_EXPLAIN: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(
         const b:bool = true;
         writeLn!(b)
         ```
-
-
         ");
     m
 });

@@ -1,10 +1,9 @@
+
 use crate::backend::compiler::comptime_variable_checker::comptime_value_for_check::ComptimeValueType;
 use thiserror::Error;
 
-//TODO:Update to error handeling with lines and update the error messages.
 
-#[derive(Debug, Error)]
-#[derive(Clone)]
+#[derive(Debug, Error, Clone)]
 pub enum CompileError {
     #[error("[E0001]Unknown macro: {name}")]
     UnknownMacro { name: String },
@@ -42,12 +41,19 @@ pub enum CompileError {
     WrongMacroArgCount { expected: usize, found: usize },
     #[error("[E0011]Expected printable but found {found:?}")]
     ExpectedPrintable { found: ComptimeValueType },
+
     #[error("[E0012]Function {name} is already defined")]
     FunctionAlredyExists{name:String},
+
     #[error("[E0013]Unknown function:{name}")]
     UnknownFunction{name:String},
+
     #[error("[E0014]Unexpected number of arguments at function {name}: expected {expected} but got {found}")]
     UnexpectedFunctionArguments{name:String,expected:usize,found:usize},
+
     #[error("[E0015]Type {name_of_type} alredey exists")]
-    TypeAlredyExists{name_of_type:String}
+    TypeAlredyExists{name_of_type:String},
+
+    #[error("[E0015]Cannot return outside of a function")]
+    CannotReturnOutisdeOfFunction{}
 }

@@ -14,6 +14,7 @@ pub enum CallType {
 pub struct ProgramNode {
     pub program_nodes: Vec<Box<dyn Compilable>>,
 }
+
 impl ProgramNode {
     pub fn new() -> Self {
         Self {
@@ -47,9 +48,11 @@ impl fmt::Debug for BinaryOpNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
 /*
  * Unary expresion node
  */
+
 #[derive(Clone)]
 pub struct PrefixExpressionNode {
     pub prefix: TokenKind,
@@ -59,6 +62,7 @@ pub struct PrefixExpressionNode {
 /*
 Number Node
 */
+
 #[derive(Clone)]
 pub struct NumberNode {
     pub number: i64,
@@ -82,6 +86,7 @@ impl fmt::Debug for FloatNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
 /*
  * String node
  */
@@ -107,9 +112,11 @@ impl Debug for BoolNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
 /*
  * Array node
  */
+
 #[derive(Clone)]
 pub struct ArrayNode {
     pub elements: Vec<Box<dyn Compilable>>,
@@ -119,6 +126,7 @@ impl Debug for ArrayNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
 /*
 Variable Access
 */
@@ -149,6 +157,7 @@ impl Debug for VariableDefineNode {
         self.fmt_with_indent(f, 0)
     }
 }
+
 /*
 Variable assign node
 */

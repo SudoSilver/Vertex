@@ -14,9 +14,7 @@ pub struct CompileContext {
     pub scopes: Vec<HashMap<String, ComptimeVariable>>,
     pub structs: Vec<HashMap<String, ComptimeStructForCheck>>,
     pub types: Vec<String>,
-
     pub function_depth: usize,
-
     is_in_function_contex: bool,
     last_fn_context: usize,
 }
