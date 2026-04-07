@@ -1,10 +1,11 @@
 // NOTE:
 // This is the main Vertex compiler CLI used until `vertex` is ready for production.
 // It is intended to compile a single file without external dependencies.
-// Currently it does not have a working linker.
+// Currently, it does not have a working linker.
 // Once `vertex` is ready, this tool will likely be replaced or deprecated and not be ready for
 // production.
-use std::env;
+use
+std::env;
 use vertex::backend::saving_bytes::compile_tools::build_directory;
 use vertex::backend::{
     errors::cli_errors::CommandLineError::{
@@ -13,14 +14,13 @@ use vertex::backend::{
     errors::compiler::error_explain::ERROR_EXPLAIN,
 };
 use vertex::runtime::runner::running_vm::run_code;
-
 fn main() {
     if let Err(e) = run_cli() {
         eprintln!(
             "{}",
             match e {
-                CommandLineError::BuildHasJustTwoArg => "Build command has just two arguments",
-                CommandLineError::NoFileSpecifiedForBuild => "No file specified for build",
+                BuildHasJustTwoArg => "Build command has just two arguments",
+                NoFileSpecifiedForBuild => "No file specified for build",
                 NoSuchCommand => "No such command. Run 'vertexC help for more info'",
                 _ => todo!(),
             }
