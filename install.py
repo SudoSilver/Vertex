@@ -2,7 +2,7 @@ from os import path, makedirs, name, chdir
 import shutil
 import subprocess
 
-REPO = "https://github.com/DomioKing653/Vertex"
+REPO = "https://github.com/DomioKing653/Vertex.git"
 DIR = "Vertex"
 
 

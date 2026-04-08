@@ -187,9 +187,9 @@ pub fn build_directory(dir: String, out: String, debug: bool) {
             }}
         }}
         "#,
-        bytecode_path = bytecode_path
-        
+        bytecode_path = bytecode_path    
     );
+
 
     println!(
         "\x1b[32mFinished writing\x1b[0m in {:.4}s\n",
