@@ -6,8 +6,8 @@ use crate::backend::{
     },
     lexer::{lexer::Lexer, tokens::Token},
 };
-
 use crate::backend::linker::link::Linker;
+use crate::clrprintln;
 use crate::backend::linker::obj_file::ObjFile;
 use crate::backend::saving_bytes::save::compile_instr_to_bytes;
 use std::{
@@ -26,6 +26,7 @@ fn debug_print(tokens: &Vec<Token>, ast: Box<dyn Compilable>, instructions: &Vec
         println!("{:?}", instruction);
     }
 }
+use process::Command;
 ///This functions does compilation process of one single file. It creates tokens, build ast, create lookup for imported variables, updates types in type table, creates bytecode and optimizes it.
 /// # Returns
 /// Singular ObjFile
@@ -67,9 +68,9 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
      */
     let mut compiler = Compiler::new();
     if let Err(e) = parsed_ast.add_to_lookup(&mut compiler) {
-        println!("Error at {}:", &dir);
-        println!("\x1b[1;31m{}\x1b[0m", e);
-        process::exit(-3);
+        clrprintln!("$red|Error at:{}", &dir);
+        clrprintln!("$red|{}", e);
+        process::exit(-3); 
     }
     /*
      * Type check
@@ -80,8 +81,8 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
      * Bytecode
      */
     if let Err(e) = parsed_ast.compile(&mut compiler) {
-        println!("Error at {}:", &dir);
-        println!("\x1b[1;31m{}\x1b[0m", e);
+        clrprintln!("$red|Error at $reset|:$cyan|{}", &dir);
+        clrprintln!("$red|{}", e);
         println!("\x1b[1mTry:vertexC error <error code> for fix\x1b[0m");
         process::exit(-3);
     }
@@ -189,6 +190,30 @@ pub fn build_directory(dir: String, out: String, debug: bool) {
         "#,
         bytecode_path = bytecode_path    
     );
+
+    let tmp_launcher_path = "tmp_launcher.rs";
+    fs::write(tmp_launcher_path, temp_launcher).unwrap();
+
+    let runtime_path = "libvm_runtime.a";
+    if !Path::new(runtime_path).exists() {
+        eprintln!("Runtime .a file not found at {}", runtime_path);
+        process::exit(-5);
+    }
+
+    let status = Command::new("rustc")
+        .args(&[
+            tmp_launcher_path,
+            "-L", Path::new(runtime_path).parent().unwrap().to_str().unwrap(),
+            "-l", "static=vm_runtime",
+            "-O",
+            "-o", &out,
+        ])
+        .status()
+        .expect("Failed to run rustc");
+
+    if !status.success() {
+        panic!("rustc failed");
+    }
 
 
     println!(
