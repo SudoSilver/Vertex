@@ -41,7 +41,7 @@ If you find something missing or finished just add or fix etc.
   7. Structs [_]
   8. Imports [x]
 - Working errors [_]:
-  1. All errors in (compiler errors file)[src/backend/errors/compiler] [_]
+  1. All errors in [compiler errors file](src/backend/errors/compiler) [_]
 - Optimization [_]:
   1. Constant folding [x]
   2. Jmp [_]
