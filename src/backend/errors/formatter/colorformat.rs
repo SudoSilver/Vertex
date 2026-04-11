@@ -180,6 +180,7 @@ macro_rules! clrprintln {
         println!("{}", $crate::backend::errors::formatter::colorformat::format_color(&format!($fmt, $($arg)*)).unwrap());
     };
 }
+
 fn builtin(name: &str) -> Option<Color> {
     match name {
         "red" => Some(Color::rgb(239, 68, 68)),

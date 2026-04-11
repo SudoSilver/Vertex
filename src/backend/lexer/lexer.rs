@@ -14,11 +14,17 @@ use crate::{
 };
 
 pub struct Lexer {
-    current_token: char,
+    current_char: char,
     token_idx: usize,
     token_count: usize,
     source_text: Vec<char>,
     final_tokens: Vec<Token>,
+
+    current_line_char:usize,
+    current_line:usize,
+
+    errors:Vec<LexerError>,
+
 }
 
 impl Lexer {
@@ -26,19 +32,27 @@ impl Lexer {
         Self {
             token_idx: 0,
             token_count: text.len(),
-            current_token: '0',
+            current_char: '0',
             source_text: text.chars().collect(),
             final_tokens: Vec::new(),
+            current_line_char:1,
+            current_line:1,
+            errors:Vec::new()
+            
         }
     }
     pub fn tokenize(&mut self) -> Result<&Vec<Token>, Box<dyn Error>> {
         if self.source_text.is_empty() {
             return Err(LexerError::EmptyFile.into());
         }
-        self.current_token = self.source_text[0];
-        while self.current_token != '\0' {
-            match self.current_token {
+        self.current_char = self.source_text[0];
+        while self.current_char != '\0' {
+            match self.current_char {
                 ' ' | '\n' | '\t' | '\r' => {
+                    if self.current_char == '\n'{
+                        self.current_line += 1;
+                        self.current_line_char = 0;
+                    }
                     self.advance();
                     continue;
                 }
@@ -49,76 +63,78 @@ impl Lexer {
                 }
                 ':' => self.final_tokens.push(Token {
                     token_kind: COLON,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '+' => self.final_tokens.push(Token {
                     token_kind: PLUS,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 ',' => self.final_tokens.push(Token {
                     token_kind: COMMA,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 ';' => self.final_tokens.push(Token {
                     token_kind: SEMICOLON,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '=' => self.final_tokens.push(Token {
                     token_kind: EQUAL,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '(' => self.final_tokens.push(Token {
                     token_kind: LEFTPAREN,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 ')' => self.final_tokens.push(Token {
                     token_kind: RIGHTPAREN,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '{' => self.final_tokens.push(Token {
                     token_kind: OPENINGBRACE,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '}' => self.final_tokens.push(Token {
                     token_kind: CLOSINGBRACE,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '-' => self.final_tokens.push(Token {
                     token_kind: MINUS,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '*' => self.final_tokens.push(Token {
                     token_kind: TIMES,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '/' => self.final_tokens.push(Token {
                     token_kind: DIVIDE,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '%' => self.final_tokens.push(Token {
                     token_kind: MODULO,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '>' => self.final_tokens.push(Token {
                     token_kind: TokenKind::GREATER,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 '<' => self.final_tokens.push(Token {
                     token_kind: TokenKind::LESS,
-                    token_value: self.current_token.to_string(),
+                    token_value: self.current_char.to_string(),
                 }),
                 _ => {
-                    if self.current_token.is_alphabetic() {
+                    if self.current_char.is_alphabetic() {
                         let token = self.create_text_token();
                         self.final_tokens.push(token);
                         continue;
-                    } else if self.current_token.is_numeric() {
+                    } else if self.current_char.is_numeric() {
                         let token = self.create_number_token()?;
                         self.final_tokens.push(token);
                         continue;
                     } else {
                         return Err(LexerError::UnknownToken {
-                            wrong_token: self.current_token.to_string(),
+                            wrong_token: self.current_char.to_string(),
+                            line:self.current_line,
+                            char:self.current_line_char,
                         }
                         .into());
                     }
@@ -136,25 +152,29 @@ impl Lexer {
 
     fn advance(&mut self) {
         self.token_idx += 1;
+        self.current_line_char += 1;
         if self.token_idx >= self.token_count {
-            self.current_token = '\0';
+            self.current_char = '\0';
         } else {
-            self.current_token = self.source_text[self.token_idx];
+            self.current_char = self.source_text[self.token_idx];
         }
     }
     fn create_number_token(&mut self) -> Result<Token, LexerError> {
         let mut number_buffer: String = String::new();
         let mut dot_count: usize = 0;
-        while self.current_token.is_numeric() || self.current_token == '.' {
-            if self.current_token == '.' {
+        while self.current_char.is_numeric() || self.current_char == '.' {
+            if self.current_char == '.' {
                 if dot_count < 1 {
                     dot_count += 1;
                     number_buffer.push('.')
                 } else {
-                    return Err(LexerError::MoreDotInANumber);
+                    return Err(LexerError::MoreDotInANumber{
+                        line:self.current_line,
+                        char:self.current_line_char,
+                    });
                 }
             } else {
-                number_buffer.push(self.current_token);
+                number_buffer.push(self.current_char);
             }
             self.advance();
         }
@@ -165,12 +185,12 @@ impl Lexer {
     }
     fn create_text_token(&mut self) -> Token {
         let mut text_buffer: String = String::new();
-        while self.current_token.is_alphabetic()
-            || self.current_token.is_numeric()
-            || self.current_token == '!'
-            || self.current_token == '_'
+        while self.current_char.is_alphabetic()
+            || self.current_char.is_numeric()
+            || self.current_char == '!'
+            || self.current_char == '_'
         {
-            text_buffer.push(self.current_token);
+            text_buffer.push(self.current_char);
             self.advance()
         }
         match text_buffer.as_str() {
@@ -246,12 +266,12 @@ impl Lexer {
         self.advance();
 
         let mut value = String::new();
-        while self.current_token != '"' && self.current_token != '\0' {
-            value.push(self.current_token);
+        while self.current_char != '"' && self.current_char != '\0' {
+            value.push(self.current_char);
             self.advance();
         }
 
-        if self.current_token == '\0' {
+        if self.current_char == '\0' {
             return Err(LexerError::UnterminatedString { text: value });
         }
 

@@ -6,7 +6,7 @@
 You will use install.py skript in the root of this project
 ## Dependencies
 - Python 3 or greater
-- Rust program language
+- Rust programming language
 - git
 ## Installation process
 First clone the repo and cd in to it
@@ -19,7 +19,7 @@ now run the install.py skript:
 ```bash
 python install.py
 ```
-
-and the final build should be in ./targe/release/
+--- 
+the final build should be in ./target/release/ and the runtime should be in ```src/codegen/libvm_runtime.a```
 
 # Congrats you have just build Vertex from source

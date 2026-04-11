@@ -6,9 +6,9 @@ use std::{
     io::Write,
     process,
 };
-use vertex::backend::{
+use vertex::{backend::{
     errors::cli_errors::CommandLineError, saving_bytes::compile_tools::build_directory,
-};
+}, clrprintln};
 
 #[derive(Deserialize)]
 struct Config {
@@ -98,7 +98,7 @@ fn run_cli() -> Result<(), CommandLineError> {
                 };
 
                 File::open("src/main.vtx").unwrap_or_else(|e| {
-                    print!("cannot find main.vtx in ./src");
+                    clrprintln!("$red|Linker error -> Cannot find main.vtx in ./src");
                     process::exit(-1);
                 });
                 build_directory("src/".to_string(), config.name, debug)

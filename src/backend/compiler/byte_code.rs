@@ -148,11 +148,13 @@ impl Compiler {
                     },
                 )?;
             }
+            self.context.curren_return_type = function.return_type;
             for instruction in &mut function.body.clone() {
                 instruction.compile(self)?;
             }
             self.out.push(Instructions::JumpOnLastOnStack);
             self.context.exit_function_scope();
+            self.context.curren_return_type = Void;
             fn_jmp_addresses.insert(name.clone(), length);
         }
         self.fix_function_jump_adresses(fn_jmp_addresses);
@@ -680,7 +682,7 @@ impl Compilable for VariableAccessNode {
 impl Compilable for VariableAssignNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         //NOTE:We are first looking to module context because we enable priority for private
-        //variables and constants and its simpler and maybe faster
+        // variables and constants and its simpler and maybe faster
         let (is_const, expected_type, tag) =
             if let Some(var) = compiler.context.get_variable(&self.name) {
                 (var.is_const, var.value_type.clone(), var.tag.clone())
@@ -828,7 +830,6 @@ impl Compilable for FunctionCallNode {
                         });
                     }
                 }
-
                 compiler
                     .out
                     .push(Instructions::PushUsize(compiler.out.len() + 2));
@@ -883,7 +884,15 @@ impl Compilable for ReturnNode {
     fn compile(&mut self, compiler: &mut Compiler) -> Result<ComptimeValueType, CompileError> {
         if compiler.context.function_depth > 0 {
             if let Some(mut r) = self.returns.clone() {
-                r.compile(compiler)?;
+                let type_of_ret = r.compile(compiler)?;
+                if type_of_ret != compiler.context.curren_return_type{
+                    panic!("idk u stupid");
+                }
+            }else {
+                if compiler.context.curren_return_type!=Void {
+                    panic!("stupid idiot")
+                    
+                }
             }
             compiler.out.push(Instructions::JumpOnLastOnStack);
         } else {

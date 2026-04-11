@@ -10,29 +10,10 @@ def run(cmd):
     print("Running:", " ".join(cmd))
     subprocess.check_call(cmd)
 
-# build binaries
 chdir(DIR)
 
 run(["cargo", "build", "--bin", "vertexC", "--release"])
 run(["cargo", "build", "--bin", "vertex", "--release"])
 
-target = path.join("target", "release")
-
-if name == "nt": 
-    vertexC = path.join(target, "vertexC.exe")
-    vertex = path.join(target, "vertex.exe")
-    install_dir = r"C:\Program Files\Vertex"
-else:
-    vertexC = path.join(target, "vertexC")
-    vertex = path.join(target, "vertex")
-    install_dir = "/usr/local/bin"
-
-# create install dir if needed
-makedirs(install_dir, exist_ok=True)
-
-# copy binaries
-shutil.copy(vertexC, install_dir)
-shutil.copy(vertex,
-            install_dir)
-
-print('Installed vertexC and vertex to', install_dir)
+chdir("src/codegen")
+run(["cargo","build","--lib","--release"])

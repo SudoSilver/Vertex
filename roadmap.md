@@ -1,10 +1,14 @@
 # This is roadmap for Vertex PL
 If you find something missing or finished just add or fix etc.
 ## Lexer
-- Make working lexer [x]
+- Make working lexer [_]
   1. Keywords [x]
   2. Numbers [x]
   3. Braces [x]
+  4. Operators:[_]
+    * +/- [x]
+    * * / [x]
+    * && / || [_]
 - Make better formatted error handeling [_]
   1. Unknown char [_]
   2. Cannot parse empty file [_]

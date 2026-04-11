@@ -15,6 +15,7 @@ pub struct CompileContext {
     pub structs: Vec<HashMap<String, ComptimeStructForCheck>>,
     pub types: Vec<String>,
     pub function_depth: usize,
+    pub curren_return_type: ComptimeValueType,
     is_in_function_contex: bool,
     last_fn_context: usize,
 }
@@ -27,9 +28,11 @@ impl CompileContext {
             scopes: vec![HashMap::new()],
             types: Vec::new(),
             structs: Vec::new(),
+            curren_return_type:Void,
             is_in_function_contex: false,
             last_fn_context: 0,
             function_depth: 0,
+            
         }
     }
 

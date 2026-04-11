@@ -48,8 +48,8 @@ pub fn compile_file_to_bytecode(dir: String) -> ObjFile {
 
     let tokens: &Vec<Token> = match main_lexer.tokenize() {
         Err(e) => {
-            println!("Error at {}:", &dir);
-            print!("{}", e);
+            clrprintln!("$red|Error at {}:", &dir);
+            println!("{}", e);
             process::exit(-1);
         }
         Ok(tokens) => tokens,
@@ -251,7 +251,22 @@ fn get_vertex_files_recursive(dir: &str) -> Vec<String> {
 
     files
 }
+
 fn find_libvm_runtime(start: &Path) -> Option<String> {
+    let mut current: Option<&Path> = Some(start);
+
+    while let Some(dir) = current {
+        if let Some(found) = find_in_dir_recursive(dir) {
+            return Some(found);
+        }
+
+        current = dir.parent();
+    }
+
+    None
+}
+
+fn find_in_dir_recursive(start: &Path) -> Option<String> {
     if !start.is_dir() {
         return None;
     }
@@ -265,11 +280,11 @@ fn find_libvm_runtime(start: &Path) -> Option<String> {
         if path.is_file() {
             if let Some(name) = path.file_name() {
                 if name == "libvm_runtime.a" {
-                    return Some(path.to_str().unwrap().to_string());
+                    return Some(path.to_string_lossy().to_string());
                 }
             }
         } else if path.is_dir() {
-            if let Some(found) = find_libvm_runtime(&path) {
+            if let Some(found) = find_in_dir_recursive(&path) {
                 return Some(found);
             }
         }

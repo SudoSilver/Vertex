@@ -1,5 +1,6 @@
-fnc foo():void{
+fnc foo():int{
 	var vtx = 5;
+	return vtx;
 }
 fnc printunderscores(count:int):void{
 	var vtx = 3;
@@ -9,7 +10,7 @@ fnc printunderscores(count:int):void{
 		write!("_");
 	}
 	writeLn!(""); 
-	foo();
+	var dasdsa = foo();
 }
 var it:int = 0;
 const size:int = 10;
