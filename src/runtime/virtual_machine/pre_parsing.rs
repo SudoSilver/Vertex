@@ -63,7 +63,7 @@ impl BytecodeLoader {
 
                 instructions::PUSH_USIZE => {
                     let value = self.read_usize()?;
-                    Instructions::PushUsize(value)
+                    Instructions::PushJmpAdress(value)
                 }
                 instructions::WRITE_LN=> Instructions::WriteLnLastOnStack,
                 instructions::WRITE => Instructions::WriteLastOnStack,

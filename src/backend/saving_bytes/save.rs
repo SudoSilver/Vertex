@@ -45,7 +45,7 @@ pub fn compile_instr_to_bytes(
                 writer.write_all(&[opcode])?;
                 writer.write_all(&n.to_le_bytes())?;
             }
-            Instructions::PushUsize(size) => {
+            Instructions::PushJmpAdress(size) => {
                 writer.write_all(&[opcode])?;
                 writer.write_all(&size.to_le_bytes())?;
             }

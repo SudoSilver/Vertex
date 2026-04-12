@@ -11,6 +11,7 @@ fnc printunderscores(count:int):void{
 	}
 	writeLn!(""); 
 	var dasdsa = foo();
+	writeLn!(dasdsa);
 }
 var it:int = 0;
 const size:int = 10;

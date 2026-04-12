@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::backend::lexer::tokens::TokenKind::{COMMA, FALSE, SEMICOLON, TRUE};
 use crate::{
-    backend::errors::lexer_errors::LexerError,
+    backend::errors::lexer_errors::LexerErrorKind,
     backend::lexer::tokens::{
         Token, TokenKind,
         TokenKind::{
@@ -12,7 +12,7 @@ use crate::{
         },
     },
 };
-
+use crate::backend::errors::lexer_errors::LexerError;
 pub struct Lexer {
     current_char: char,
     token_idx: usize,
@@ -23,7 +23,7 @@ pub struct Lexer {
     current_line_char:usize,
     current_line:usize,
 
-    errors:Vec<LexerError>,
+    errors:Vec<LexerErrorKind>,
 
 }
 
@@ -43,7 +43,7 @@ impl Lexer {
     }
     pub fn tokenize(&mut self) -> Result<&Vec<Token>, Box<dyn Error>> {
         if self.source_text.is_empty() {
-            return Err(LexerError::EmptyFile.into());
+            return Err(LexerErrorKind::EmptyFile.into());
         }
         self.current_char = self.source_text[0];
         while self.current_char != '\0' {
@@ -131,10 +131,11 @@ impl Lexer {
                         self.final_tokens.push(token);
                         continue;
                     } else {
-                        return Err(LexerError::UnknownToken {
-                            wrong_token: self.current_char.to_string(),
+                        return Err(LexerError{err:LexerErrorKind::UnknownToken {
+                                wrong_token: self.current_char.to_string(),
+                            },
                             line:self.current_line,
-                            char:self.current_line_char,
+                            char:self.current_line_char
                         }
                         .into());
                     }
@@ -168,9 +169,11 @@ impl Lexer {
                     dot_count += 1;
                     number_buffer.push('.')
                 } else {
-                    return Err(LexerError::MoreDotInANumber{
-                        line:self.current_line,
-                        char:self.current_line_char,
+                    return Err(LexerError{
+                            err: LexerErrorKind::MoreDotInANumber,
+                            line:self.current_line,
+                            char:self.current_line_char,
+
                     });
                 }
             } else {
@@ -264,17 +267,22 @@ impl Lexer {
 
     fn read_string(&mut self) -> Result<Token, LexerError> {
         self.advance();
+        let starting_line = self.current_line;
+        let starting_char = self.current_line_char;
 
         let mut value = String::new();
         while self.current_char != '"' && self.current_char != '\0' {
             value.push(self.current_char);
             self.advance();
         }
-
         if self.current_char == '\0' {
-            return Err(LexerError::UnterminatedString { text: value });
-        }
+            return Err(LexerError{
+                err: LexerErrorKind::UnterminatedString { text: value },
+                line:starting_line,
+                char:starting_char,
 
+            });
+        }
         self.advance();
         Ok(Token {
 

@@ -1,12 +1,19 @@
 use thiserror::Error;
 #[derive(Debug, Error)]
-pub enum LexerError {
-    #[error("ln:{line},ch:{char} -> Unknown token: {wrong_token}")]
-    UnknownToken { wrong_token: String,line:usize,char:usize },
-    #[error("ln:{line},ch:{char} -> Cannot have more dots in a number")]
-    MoreDotInANumber{line:usize,char:usize},
+pub enum LexerErrorKind {
+    #[error("Unknown token: {wrong_token}")]
+    UnknownToken { wrong_token: String },
+    #[error("Cannot have more dots in a number")]
+    MoreDotInANumber,
     #[error("Unterminated string:{text}")]
     UnterminatedString{text:String},
     #[error("Cannot parse empty file")]
     EmptyFile,
+}
+#[derive(Error,Debug)]
+#[error("ln:{line},ch:{char} -> {err}")]
+pub struct LexerError{
+    pub err:LexerErrorKind,
+    pub line:usize,
+    pub char:usize
 }

@@ -13,6 +13,7 @@ use {
 pub struct VM {
     pub ip: usize,
     pub stack: Vec<Value>,
+    pub jump_stack:Vec<usize>,
     pub instructions: Vec<Instructions>,
     pub variables: HashMap<String, Variable>,
 }
@@ -25,6 +26,7 @@ impl VM {
             stack: Vec::new(),
             instructions,
             variables: std::collections::HashMap::new(),
+            jump_stack:Vec::new()
         })
     }
 
@@ -111,8 +113,8 @@ impl VM {
                     self.stack.push(StringValue(s));
                     self.ip += 1;
                 }
-                Instructions::PushUsize(size)=>{
-                    self.stack.push(Value::Usize(size));
+                Instructions::PushJmpAdress(size)=>{
+                    self.jump_stack.push(size);
                     self.ip+=1;
                 }
                 Instructions::LoadVar(name) => {
@@ -198,16 +200,7 @@ impl VM {
                     }
                 }
                 Instructions::JumpOnLastOnStack=>{
-                    let jumping_to = self.pop()?;
-                    self.ip = match jumping_to {
-                        Value::Usize(s)=>{
-                            s
-                        }
-                        _=>{
-                            unreachable!()
-                        }
-                        
-                    }
+                    self.ip = self.jump_stack.pop().unwrap();               
                 }
                 Instructions::GreaterThan => {
                     let right = self.pop()?;

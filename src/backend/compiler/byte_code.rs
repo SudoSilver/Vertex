@@ -832,7 +832,7 @@ impl Compilable for FunctionCallNode {
                 }
                 compiler
                     .out
-                    .push(Instructions::PushUsize(compiler.out.len() + 2));
+                    .push(Instructions::PushJmpAdress(compiler.out.len() + 2));
                 compiler.out.push(Instructions::Call(self.name.clone()));
                 if let Some(a) = compiler.function_call_addresses.get_mut(&self.name) {
                     a.push(compiler.out.len() - 1);
@@ -841,7 +841,7 @@ impl Compilable for FunctionCallNode {
                         .function_call_addresses
                         .insert(self.name.clone(), vec![compiler.out.len() - 1]);
                 }
-                Ok(Void)
+                Ok(self.my_type(compiler)?)
             }
         }
     }
@@ -870,7 +870,10 @@ impl Compilable for FunctionCallNode {
             compiler.macros.macros.insert(self.name.clone(), mac);
             Ok(result)
         } else {
-            Ok(compiler.context.get_fn(&self.name)?.return_type)
+            let my_type =compiler.context.get_fn(&self.name)?.return_type;
+            Ok(my_type)
+
+
         }
     }
 }

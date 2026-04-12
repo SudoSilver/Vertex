@@ -52,7 +52,7 @@ pub enum Instructions {
     PushString(String),
     PushBool(bool),
     PushNumber(f32),
-    PushUsize(usize),
+    PushJmpAdress(usize),
     ReadInput,
     Drop(String),
     //Printing
@@ -89,7 +89,7 @@ impl Instructions {
             Instructions::PushBool(_) => PUSH_BOOL,
             Instructions::PushNumber(_) => PUSH_NUMB,
             Instructions::Drop(_) => DROP,
-            Instructions::PushUsize(_)=>PUSH_USIZE,
+            Instructions::PushJmpAdress(_)=>PUSH_USIZE,
 
             Instructions::WriteLnLastOnStack => WRITE_LN,
             Instructions::WriteLastOnStack => WRITE,
