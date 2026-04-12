@@ -18,7 +18,6 @@ pub fn print_lexer_err(err: LexerError, src_file: String) {
             width = line_width
         );
     }
-
     if let Some(line) = lines.get(line_idx) {
         let highlighted: String = line
             .chars()
