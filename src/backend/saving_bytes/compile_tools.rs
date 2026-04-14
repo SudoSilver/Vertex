@@ -190,7 +190,7 @@ pub fn build_directory(dir: String, out: String, debug: bool, vm_path:Option<Pat
         r#"
 const std = @import("std");
 extern fn vm_entry(ptr: [*]const u8, len: usize) void;
-var program = @embedFile("{bytecode_path}");
+var program = @embedfile("{bytecode_path}");
 pub fn main() !void {{
     vm_entry(program.ptr, program.len);
 }}
