@@ -179,39 +179,42 @@ pub fn build_directory(dir: String, out: String, debug: bool, vm_path:Option<Pat
     /*
      * Compiling to exe
      */
-    println!("\x1b[1mCompiling with rustc\x1b[0m");
+    //NOTE:You need to have zig toolchain installed to compile this. We are creating temp_launcher
+    //and than compiling it with:
+    //`zig build-exe tmp_launcher_path.zig runtime_path -lc -lunwind -Doptimize=ReleaseSmall
+    //femit-bin=out/bin/out`
+    println!("\x1b[1mCompiling with zig\x1b[0m");
     let compiler_timer = Instant::now();
     let bytecode_path = format!("out/{}",out);
     let temp_launcher = format!(
         r#"
-        static BYTECODE: &[u8] = include_bytes!(r"{bytecode_path}");
-        fn main() {{
-            extern "C" {{
-                fn vm_entry(ptr: *const u8, len: usize);
-            }}
-            unsafe {{
-                vm_entry(BYTECODE.as_ptr(), BYTECODE.len());
-            }}
-        }}
+const std = @import("std");
+extern fn vm_entry(ptr: [*]const u8, len: usize) void;
+var program = @embedFile("{bytecode_path}");
+pub fn main() !void {{
+    vm_entry(program.ptr, program.len);
+}}
         "#,
         bytecode_path = bytecode_path    
     );
 
-    let tmp_launcher_path = "tmp_launcher.rs";
+    let tmp_launcher_path = "tmp_launcher.zig";
     fs::write(tmp_launcher_path, temp_launcher).unwrap();
     let runtime_path = find_libvm_runtime(Path::new(".")).unwrap();
-    let status = Command::new("rustc")
+    let status = Command::new("zig")
         .args(&[
-            tmp_launcher_path,
-            "-L", Path::new(&runtime_path).parent().unwrap().to_str().unwrap(),
-            "-l", "static=vm_runtime",
-            "-O",
-            "-o", &out,
+            "build-exe",
+            "tmp_launcher.zig",
+            &runtime_path,
+            "-lc",
+            "-lunwind",
+            "-Doptimize=ReleaseSmall",
+            &format!("-femit-bin=out/bin/{}",out),
         ])
         .status()
-        .expect("Failed to run rustc");
+        .expect("Failed to run zig");
     if !status.success() {
-        panic!("rustc failed");
+        panic!("zig failed");
     }
     fs::remove_file(tmp_launcher_path).unwrap();
     clrprintln!("$green|");
@@ -228,7 +231,7 @@ pub fn build_directory(dir: String, out: String, debug: bool, vm_path:Option<Pat
 }
 
 fn ensure_target_dir() {
-    let target = std::env::current_dir().unwrap().join("out");
+    let target = std::env::current_dir().unwrap().join("out/bin");
     if !target.exists() {
         fs::create_dir(target).expect("Cannot create target directory");
     }

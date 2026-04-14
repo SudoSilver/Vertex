@@ -21,7 +21,9 @@ A modern, statically-typed programming language designed for clarity, performanc
 | Windows  |  Build from source |
 
 Pre-built binaries are currently available for Linux. For other platforms, please build from source.
-
+### Dependencies
+- Zig toolchain
+- Rust(you dont need to but its good to have)
 ### Installation
 - Install it from github releases(Linux olny)
 - Else build it from source
