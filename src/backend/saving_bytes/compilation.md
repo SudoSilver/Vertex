@@ -1,8 +1,8 @@
 # !This is documentation for developers only!
-In this document, you will find how we are compiling .vtx files to executables with ```[zig toolchain](https://ziglang.org/)```.
+In this document, you will find how we are compiling .vtx files to executables with [zig toolchain](https://ziglang.org/).
 The main logic is at [compile_tools.rs]. There we are lexing, parsing, building and compiling the file.
 ## Main logic
-We are compiling our vm using wrapper in [../../codegen/]. It will compile ```libvm_runtime.a``` and we'll be using it to link it to the final
+We are compiling our vm using (wrapper)[../../codegen/]. It will compile ```libvm_runtime.a``` and we'll be using it to link it to the final
 executable file. This should be prebuilded and be somewhere in path becouse ```vertexC``` will try to find it. After this we are going
 to compile the code to bytcodes and save them to ```out/name```. Then we create ```tmp_launcher.zig```:
 ```zig
