@@ -113,6 +113,7 @@ impl Compiler {
         self.context.exit_scope();
     }
     fn fix_function_jump_adresses(&mut self, fn_jmp_adresses: HashMap<String, usize>) {
+        // Some hashmap stuff for the function calls maping and modifing
         for (function, function_address) in fn_jmp_adresses {
             if let Some(calls) = self.function_call_addresses.get(&function) {
                 for &addr in calls {

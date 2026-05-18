@@ -20,7 +20,7 @@ Please report issues via:
 - GitHub Issues (preferred): https://github.com/DomioKing653/Vertex/issues
 
 For sensitive security issues (if available):
-- Use GitHub Private Vulnerability Reporting (recommended if enabled)
+- Use GitHub Private Vulnerability Reporting
 
 ---
 

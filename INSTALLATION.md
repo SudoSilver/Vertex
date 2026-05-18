@@ -14,12 +14,15 @@ First clone the repo and cd in to it
 git clone github.com/DomioKing653/Vertex
 cd Vertex
 ```
-
-now run the install.py skript:
+### Compilation
 ```bash
-python install.py
+cargo build --release
+cd src/codegen
+cargo build --lib --release
 ```
---- 
-the final build should be in ./target/release/ and the runtime should be in ```src/codegen/libvm_runtime.a```
+### Final setup
+Now move `vertex` and `vertexC` from `./target/` and `libvm_runtime.a` from `./src/codegen/target/` and put it to your enviroment variables. 
+Than setup VERTEX_RUNTIME_PATH enviroment variable as path libvm_runtime.a
 
-# Congrats you have just build Vertex from source
+--- 
+## Congrats now you've built Vertex from source :]

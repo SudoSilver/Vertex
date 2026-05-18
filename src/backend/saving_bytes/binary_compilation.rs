@@ -25,7 +25,8 @@ pub fn main() !void {{
     );
     let tmp_launcher_path = "tmp_launcher.zig";
     fs::write(tmp_launcher_path, temp_launcher).unwrap();
-    let runtime_path = find_libvm_runtime(Path::new(".")).unwrap();
+    let runtime_path = find_libvm_runtime(Path::new("."))
+        .expect("Build error: Cannot find static libvm_runtime.a library. Ensure it is in the same directory as vertexC or set VERTEX_RUNTIME_PATH.");
     let status = Command::new("zig")
         .args([
             "build-exe",
@@ -49,40 +50,28 @@ pub fn main() !void {{
     ));
 }
 
-fn find_libvm_runtime(start: &Path) -> Option<String> {
-    let mut current: Option<&Path> = Some(start);
+fn find_libvm_runtime(_start: &Path) -> Option<String> {
+    // 1. Check environment variable
+    if let Ok(path) = std::env::var("VERTEX_RUNTIME_PATH")
+        && Path::new(&path).is_file()
+    {
+        return Some(path);
+    }
 
-    while let Some(dir) = current {
-        if let Some(found) = find_in_dir_recursive(dir) {
-            return Some(found);
+    // 2. Check near the executable
+    if let Ok(mut exe_path) = std::env::current_exe() {
+        exe_path.pop(); // Remove executable name
+        let p = exe_path.join("libvm_runtime.a");
+        if p.is_file() {
+            return Some(p.to_string_lossy().to_string());
         }
-        current = dir.parent();
     }
 
-    None
-}
-
-fn find_in_dir_recursive(start: &Path) -> Option<String> {
-    if !start.is_dir() {
-        return None;
-    }
-
-    let entries = fs::read_dir(start).ok()?;
-
-    for entry in entries {
-        let entry = entry.ok()?;
-        let path = entry.path();
-
-        if path.is_file() {
-            if let Some(name) = path.file_name()
-                && name == "libvm_runtime.a"
-            {
-                return Some(path.to_string_lossy().to_string());
-            }
-        } else if path.is_dir()
-            && let Some(found) = find_in_dir_recursive(&path)
-        {
-            return Some(found);
+    // 3. Check CWD
+    if let Ok(cwd) = std::env::current_dir() {
+        let p = cwd.join("libvm_runtime.a");
+        if p.is_file() {
+            return Some(p.to_string_lossy().to_string());
         }
     }
 
