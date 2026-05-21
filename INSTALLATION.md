@@ -3,11 +3,10 @@
 
 ---
 
-You will use install.py skript in the root of this project
 ## Dependencies
-- Python 3 or greater
 - Rust programming language
 - git
+- Zig toolchain
 ## Installation process
 First clone the repo and cd in to it
 ```bash
