@@ -2,6 +2,7 @@ use crate::backend::errors::linker::linker_errors::LinkerError;
 use crate::backend::linker::obj_file::ObjFile;
 use std::collections::{HashMap, VecDeque};
 pub fn sort_objs_bfs(objs: &mut Vec<ObjFile>) -> Result<(), LinkerError> {
+    // NOTE: Draining the input vector and mapping to a HashMap for dependency resolution.
     let mut obj_map: HashMap<String, ObjFile> =
         objs.drain(..).map(|o| (o.name.clone(), o)).collect();
 
@@ -55,9 +56,12 @@ pub fn sort_objs_bfs(objs: &mut Vec<ObjFile>) -> Result<(), LinkerError> {
 
     if !obj_map.is_empty() {
         let remaining: Vec<_> = obj_map.keys().cloned().collect();
+        let imported = remaining[0].clone();
+        let from = remaining.get(1).cloned().unwrap_or_else(|| imported.clone());
+        
         return Err(LinkerError::CyclicImport {
-            imported: remaining[0].clone(),
-            from: remaining[1].clone(),
+            imported,
+            from,
         });
     }
 
